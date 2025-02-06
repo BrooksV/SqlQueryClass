@@ -1,9 +1,12 @@
+# CheetSheet
+
 & "C:\Program Files (x86)\Info Keep\info keep.exe"
 
-Photography Co-worker Kevin Hecht (kevin.a.hecht@pwc.com)
+Photography Co-worker [Kevin Hecht](mailto://kevin.a.hecht@pwc.com)
 
-# To Publish Module to PowerShell Gallery
+## To Publish Module to PowerShell Gallery
 
+```powershell
 Publish-Module -Path <Path> -NuGetApiKey <APIKey> -Repository PSGallery
 
 Publish-Module -Path "C:\Git\SqlQueryClass\dist\SqlQueryClass" -NuGetApiKey "" -Repository PSGallery
@@ -40,16 +43,15 @@ AdditionalMetadata         : @{summary=Module that create an instance of a Power
                              isLatestVersion=True; CompanyName=Unknown; Functions=New-SqlQueryDataSet; FileList=SqlQueryClass.nuspec|about_SqlQueryClass.help.txt|SqlQueryClass.psd1|SqlQueryClass.psm1;
                              PowerShellHostVersion=5.1; created=2/6/2025 3:43:39 AM -05:00; isAbsoluteLatestVersion=True; copyright=(c) Brooks Vaughn. All rights reserved.; packageSize=15464; developmentDependency=False;        
                              updated=2025-02-06T03:43:39Z; published=2/6/2025 3:43:39 AM -05:00}
+```
 
-
-
-# Code Signing
+## Code Signing
 
 Get-ChildItem -Path Cert:\CurrentUser -Recurse | FL
 Get-ChildItem -Path Cert:\CurrentUser\My -CodeSigningCert
 Get-ChildItem -Path Cert:\LocalMachine -Recurse | FL
 
-# git config commands
+## git config commands
 
 - ps.readinglist.md -- Quick Reference Reading list of helpful PowerShell sites, articles, and documents
 
@@ -57,7 +59,7 @@ Get-ChildItem -Path Cert:\LocalMachine -Recurse | FL
 
 git config --system core.longpaths true
 
-### git remote urls
+#### git remote urls
 
 git remote -v
 
@@ -65,10 +67,13 @@ git remote -v
 
 ### To Set your username
 
+```powershell
 git config --global user.name "FIRST_NAME LAST_NAME"
+```
 
 ### To Set your email address
 
+```powershell
 git config --global user.email "MY_NAME@example.com"
 
 git config --global user.name "Brooks Vaughn"
@@ -76,6 +81,7 @@ git config --global user.email "18422308+BrooksV@users.noreply.github.com"
 
 git config --worktree user.name "Brooks Vaughn"
 git config --global user.email "18422308+BrooksV@users.noreply.github.com"
+```
 
 ### Check configuration for your user
 
@@ -85,23 +91,31 @@ $ cat $HOME/.gitconfig
 
 ### Get system value
 
+```powershell
 git config --system --get https.proxy
 git config --system --get http.proxy
+```
 
 ### Get global value
 
+```powershell
 git config --global --get https.proxy
 git config --global --get http.proxy
+```
 
 ### Unset system value
 
-$ git config --system --unset https.proxy
-$ git config --system --unset http.proxy
+```powershell
+git config --system --unset https.proxy
+git config --system --unset http.proxy
+```
 
 ### Unset global value
 
-$ git config --global --unset https.proxy
-$ git config --global --unset http.proxy
+```powershell
+git config --global --unset https.proxy
+git config --global --unset http.proxy
+```
 
 ## Proxy Config using Environment Variables
 
@@ -109,30 +123,39 @@ Your proxy could also be set as an environment variable. Check if your environme
 
 ### Linux
 
+```bash
 export http_proxy=http://proxy:8080
 export https_proxy=https://proxy:8443 
+```
 
 ### Windows
 
+```powershell
 set http_proxy http://proxy:8080 
 set https_proxy https://proxy:8443
+```
 
 ## SSL Config
 
+```powershell
 git config --global http.sslVerify
 git config --global http.sslVerify true
+```
 
 ### Repro Clone SSL Errors
 
+```powershell
 SSL_VERIFY=false
 git config --global http.sslVerify false
+```
 
 My agents are running as Network Service too but that wasn't really a problem to use user level config. Here is what I did:
 1.Save all the necessary certificates in folder %systemroot%\ServiceProfiles\NetworkService\.gitcerts\.
 2.Create a file at %systemroot%\ServiceProfiles\NetworkService\.gitconfig with the following content:
 
 [http "https://tfs.com/"](http "https://tfs.com/")
-	sslCAInfo = ~/.gitcerts/certificate.pem
+
+$sslCAInfo = ~/.gitcerts/certificate.pem
 
 [adding-a-corporate-or-self-signed-certificate-authority-to-git-exes-store](https://blogs.msdn.microsoft.com/phkelley/2014/01/20/adding-a-corporate-or-self-signed-certificate-authority-to-git-exes-store/)
 
@@ -141,7 +164,7 @@ git config --global http.sslBackend schannel
 [how-to-make-git-work-with-self-signed-ssl-certificates-on-tfs2018](https://www.benday.com/2017/12/15/how-to-make-git-work-with-self-signed-ssl-certificates-on-tfs2018/)
 [fix-git-self-signed-certificate-in-certificate-chain-on-windows](https://mattferderer.com/fix-git-self-signed-certificate-in-certificate-chain-on-windows)
 
-# Git Repo and Branch Commands
+## Git Repo and Branch Commands
 
 ### Reset Local Master
 
@@ -158,21 +181,23 @@ git checkout main
 git reset --hard origin/main
 git pull origin main
 
-If you want to create a new branch to retain commits you create, you may do so (now or later) by using -c with the switch command. 
+If you want to create a new branch to retain commits you create, you may do so (now or later) by using -c with the switch command.
 
+```powershell
 Example:
   git switch -c <new-branch-name>
 
 Or undo this operation with:
-  git switch -
+  git switch -?
+```
 
 ## Status and Info Commands
 
+```powershell
 git status
 git log
 git branch --all
 git branch features/<Branch name>
-
 
 git fetch origin
 git fetch origin master
@@ -184,76 +209,88 @@ git status
 git log
 git push
 
-
 git pull
 git branch -a
+```
 
 ## To Create Branch from Master
 
+```powershell
 git fetch origin master
 git checkout master
 git pull origin master
 git checkout -b features/???
 git push --set-upstream origin features/???
 git checkout features/???
+```
 
 ### Create local branch
 
+```powershell
 git checkout -b features/<branch name>
 git status
 git add foo.txt
 git commit -m "<comment>"
-git commit -a -m "<comment>" # ?
+git commit -a -m "<comment>" ## ?
 git push
+```
 
 ### Create Branch on origin (UpStream) to Repository
 
+```powershell
 git push --set-upstream origin features/<branch name>
+```
 
 ### To sync local master
 
+```powershell
 git checkout master
 git pull
 
 git checkout features/readme-updates
 git merge master ????
+```
 
-# Notes
+## Notes
 
 Origin is the plcae where the branch was cloned from
 
+```powershell
 git remote add <name> <url>
 git add -p
 git log --online
 
 npm config set strict-ssl false
+```
 
+## Git Merging commands
 
-# Git Merging commands
-
+```powershell
 git merge branch master
 git status
 git log
 git push
 
-
 git config --get --local  core.filemode
 false
 
 git config --local --list
+```
 
 ## Commits
 
+```powershell
 git add yaml\???.yml
 git commit -m "???"
-git commit -a -m "<comment>" # ?
+git commit -a -m "<comment>" ## ?
 git push
 git merge --abort
 git branch -a --sort=-committerdate --format='%(HEAD) %(color:yellow)%(refname:short)%(color:reset) - %(color:red)%(objectname:short)%(color:reset) - %(contents:subject) - %(authorname) (%(color:green)%(committerdate:relative)%(color:reset))'
 (git reflog > reflog.md) | Invoke-Item
 git reflog | Select-String <issue trackerID>
+```
 
-### Explanation of what each of those Git commands do
+## Explanation of what each of those Git commands do
 
 ### `git add yaml???.yml`
 
@@ -307,12 +344,14 @@ These commands cover a range of Git operations, from staging and committing chan
 
 ## Git Command docs
 
+```powershell
 git remote add upstream 
 git fetch upstream
 git rebase upstream/master
 git push origin master --force
+```
 
-### Explanation of what each of those Git commands does:
+## Explanation of what each of those Git commands does
 
 ### `git remote add upstream`
 
@@ -358,8 +397,9 @@ git push origin master --force
 - **Purpose**: To overwrite the remote `master` branch with your local changes, even if it results in non-fast-forward updates.
 - **Example**: Use with caution as it can overwrite changes in the remote repository that others may be relying on.
 
-# 2025-02-05 22:59:55
+## 2025-02-05 22:59:55
 
+```powershell
 git pull origin main
 
 git checkout -b features/readme-updates
@@ -370,3 +410,16 @@ git commit -m ""
 git commit -a -m "Updated SQL query class and added error handling"
 
 git push
+```
+
+```powershell
+```
+
+```powershell
+```
+
+```powershell
+```
+
+```powershell
+```
