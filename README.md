@@ -107,7 +107,6 @@ SQLServer                  Property   string SQLServer {get;set;}
 TableIndex                 Property   int TableIndex {get;set;}
 TableNames                 Property   hashtable TableNames {get;set;}
 Tables                     Property   System.Collections.Generic.List`1[[SqlQueryTable, PowerShell Class Assembly, Version=1.0.0.1, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e Tables {get;set;}
-
 ```
 
 ## Summary
@@ -250,7 +249,7 @@ Query          : SELECT * FROM INFORMATION_SCHEMA.TABLES
 SQLCommand     : System.Data.SqlClient.SqlCommand
 SqlDataAdapter :
 ResultType     : DataTable
-Result         : {Document, Category, Entity, DocName…}
+Result         : {Document, Category, Entity, DocName...}
 isDirty        : False
 QueryFile      :
 Parent         : SqlQueryDataSet
@@ -281,7 +280,8 @@ The the following ModuleTools CmdLets used in the build and maintenance process.
 - To skip a test, add `-skip` in describe block of the Pester *.test.ps1 file to skip.
 
 ### Folder and Files
-
+ 
+```powershell
 .\SQLQUERYCLASS
 │   .gitignore
 │   GitHub_Action_Docs.md
@@ -315,6 +315,7 @@ The the following ModuleTools CmdLets used in the build and maintenance process.
         Module.Tests.ps1
         OutputFiles.Tests.ps1
         ScriptAnalyzer.Tests.ps1
+```
 
 All files and folders in the `src` folder, will be published Module.
 
