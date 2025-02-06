@@ -7,6 +7,7 @@
     <a target="_blank" href="https://github.com/BrooksV/SqlQueryClass/issues/"><img src="https://img.shields.io/github/issues/BrooksV/SqlQueryClass.svg" /></a>
     <a target="_blank" href="https://github.com/BrooksV/SqlQueryClass/issues?q=is%3Aissue+is%3Aclosed"><img src="https://img.shields.io/github/issues-closed/BrooksV/SqlQueryClass.svg" /></a><br>
 </div>
+
 # SqlQueryClass
 
 Provides functionality for executing SQL queries and managing SQL datasets
@@ -249,7 +250,7 @@ Query          : SELECT * FROM INFORMATION_SCHEMA.TABLES
 SQLCommand     : System.Data.SqlClient.SqlCommand
 SqlDataAdapter :
 ResultType     : DataTable
-Result         : {Document, Category, Entity, DocName…}
+Result         : {Document, Category, Entity, DocName�}
 isDirty        : False
 QueryFile      :
 Parent         : SqlQueryDataSet
@@ -282,35 +283,35 @@ The the following ModuleTools CmdLets used in the build and maintenance process.
 ### Folder and Files
 
 .\SQLQUERYCLASS
-│   .gitignore
-│   GitHub_Action_Docs.md
-│   LICENSE
-│   project.json
-│   README.md
-│
-├───.vscode
-│       settings.json
-│
-├───archive
-│
-├───dist
-│   └───SqlQueryClass
-│           about_SqlQueryClass.help.txt
-│           SqlQueryClass.psd1
-│           SqlQueryClass.psm1
-│
-├───src
-│   ├───private
-│   │       SqlQueryClass.ps1
-│   │
-│   ├───public
-│   │       about_SqlQueryClass.help.txt
-│   │       New-SqlQueryDataSet.ps1
-│   │
-│   └───resources
-│           about_SqlQueryClass.help.txt
-│
-└───tests
+�   .gitignore
+�   GitHub_Action_Docs.md
+�   LICENSE
+�   project.json
+�   README.md
+�
++---.vscode
+�       settings.json
+�
++---archive
+�
++---dist
+�   +---SqlQueryClass
+�           about_SqlQueryClass.help.txt
+�           SqlQueryClass.psd1
+�           SqlQueryClass.psm1
+�
++---src
+�   +---private
+�   �       SqlQueryClass.ps1
+�   �
+�   +---public
+�   �       about_SqlQueryClass.help.txt
+�   �       New-SqlQueryDataSet.ps1
+�   �
+�   +---resources
+�           about_SqlQueryClass.help.txt
+�
++---tests
         Module.Tests.ps1
         OutputFiles.Tests.ps1
         ScriptAnalyzer.Tests.ps1
