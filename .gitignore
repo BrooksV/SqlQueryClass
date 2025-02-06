@@ -3,12 +3,16 @@
 # Ignore files not ready for publishing
 GitHub_Action_Docs.md
 
-# Ignore archive folders
-/archive/
+# User-specific files and folders
+archive/
+temp/
+run.ps1
 
 # Ignore CheatSheet and reading list files
-*.cheatsheet.*
-*.readinglist.*
+# Root Level Files
+*.readinglist.md
+*.cheatsheet.md
+*_cheatsheet.md
 reflog.md
 
 # Ignore build output directories
@@ -25,7 +29,7 @@ reflog.md
 
 # Ignore IDE-specific files
 .vs/
-.vscode/
+# .vscode/
 
 # Ignore test results
 TestResults/
