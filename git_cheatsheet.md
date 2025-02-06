@@ -2,6 +2,53 @@
 
 Photography Co-worker Kevin Hecht (kevin.a.hecht@pwc.com)
 
+# To Publish Module to PowerShell Gallery
+
+Publish-Module -Path <Path> -NuGetApiKey <APIKey> -Repository PSGallery
+
+Publish-Module -Path "C:\Git\SqlQueryClass\dist\SqlQueryClass" -NuGetApiKey "" -Repository PSGallery
+
+Find-Module -Name SqlQueryClass | Install-Module -Scope CurrentUser -AcceptLicense
+
+Find-Module -Name SqlQueryClass | FL
+
+Name                       : SqlQueryClass
+Version                    : 0.1.0
+Type                       : Module
+Description                : Module that create an instance of a PowerShell class which is used to execute SQL Queries and manages output as DataTable, DataAdapter, DataSet, SqlReader, or NonQuery result object.
+Author                     : Brooks Vaughn
+CompanyName                : BrooksV
+Copyright                  : (c) Brooks Vaughn. All rights reserved.
+PublishedDate              : 2/6/2025 3:43:39 AM
+InstalledDate              : 
+UpdatedDate                : 
+LicenseUri                 : https://github.com/BrooksV/SqlQueryClass/blob/main/LICENSE
+ProjectUri                 : https://github.com/BrooksV/SqlQueryClass
+IconUri                    : 
+Tags                       : {PowerShell, Database, SQL, SQLServer…}
+Includes                   : {[RoleCapability, System.Object[]], [DscResource, System.Object[]], [Cmdlet, System.Object[]], [Workflow, System.Object[]]…}
+PowerShellGetFormatVersion : 
+ReleaseNotes               : 
+Dependencies               : {}
+RepositorySourceLocation   : https://www.powershellgallery.com/api/v2
+Repository                 : PSGallery
+PackageManagementProvider  : NuGet
+AdditionalMetadata         : @{summary=Module that create an instance of a PowerShell class which is used to execute SQL Queries and manages output as DataTable, DataAdapter, DataSet, SqlReader, or NonQuery result object.;      
+                             ItemType=Module; IsPrerelease=false; PackageManagementProvider=NuGet; NormalizedVersion=0.1.0; SourceName=PSGallery; tags=PowerShell Database SQL SQLServer SQLQuery DataAdapter DataSet DataTable     
+                             PSModule; description=Module that create an instance of a PowerShell class which is used to execute SQL Queries and manages output as DataTable, DataAdapter, DataSet, SqlReader, or NonQuery result   
+                             object.; Authors=Brooks Vaughn; versionDownloadCount=0; GUID=8375edbe-fb0f-4cb6-acb0-9964b45725c0; lastUpdated=2/6/2025 3:43:39 AM -05:00; requireLicenseAcceptance=False; downloadCount=0;
+                             isLatestVersion=True; CompanyName=Unknown; Functions=New-SqlQueryDataSet; FileList=SqlQueryClass.nuspec|about_SqlQueryClass.help.txt|SqlQueryClass.psd1|SqlQueryClass.psm1;
+                             PowerShellHostVersion=5.1; created=2/6/2025 3:43:39 AM -05:00; isAbsoluteLatestVersion=True; copyright=(c) Brooks Vaughn. All rights reserved.; packageSize=15464; developmentDependency=False;        
+                             updated=2025-02-06T03:43:39Z; published=2/6/2025 3:43:39 AM -05:00}
+
+
+
+# Code Signing
+
+Get-ChildItem -Path Cert:\CurrentUser -Recurse | FL
+Get-ChildItem -Path Cert:\CurrentUser\My -CodeSigningCert
+Get-ChildItem -Path Cert:\LocalMachine -Recurse | FL
+
 # git config commands
 
 - ps.readinglist.md -- Quick Reference Reading list of helpful PowerShell sites, articles, and documents
@@ -310,3 +357,16 @@ git push origin master --force
 
 - **Purpose**: To overwrite the remote `master` branch with your local changes, even if it results in non-fast-forward updates.
 - **Example**: Use with caution as it can overwrite changes in the remote repository that others may be relying on.
+
+# 2025-02-05 22:59:55
+
+git pull origin main
+
+git checkout -b features/readme-updates
+git status
+
+git commit -m ""
+
+git commit -a -m "Updated SQL query class and added error handling"
+
+git push

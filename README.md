@@ -7,6 +7,7 @@
     <a target="_blank" href="https://github.com/BrooksV/SqlQueryClass/issues/"><img src="https://img.shields.io/github/issues/BrooksV/SqlQueryClass.svg" /></a>
     <a target="_blank" href="https://github.com/BrooksV/SqlQueryClass/issues?q=is%3Aissue+is%3Aclosed"><img src="https://img.shields.io/github/issues-closed/BrooksV/SqlQueryClass.svg" /></a><br>
 </div>
+
 # SqlQueryClass
 
 Provides functionality for executing SQL queries and managing SQL datasets
