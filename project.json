@@ -1,0 +1,31 @@
+{
+  "ProjectName": "SqlQueryClass",
+  "Description": "Module that create an instance of a PowerShell class which is used to execute SQL Queries and manages output as DataTable, DataAdapter, DataSet, SqlReader, or NonQuery result object.",
+  "Version": "0.1.0",
+  "Manifest": {
+    "Author": "Brooks Vaughn",
+    "PowerShellHostVersion": "5.1",
+    "GUID": "8375edbe-fb0f-4cb6-acb0-9964b45725c0",
+    "Tags": [
+      "PowerShell",
+      "Database",
+      "SQL",
+      "SQLServer",
+      "SQLQuery",
+      "DataAdapter",
+      "DataSet",
+      "DataTable"
+    ],
+    "ProjectUri": "https://github.com/BrooksV/SqlQueryClass",
+    "LicenseUri": "https://github.com/BrooksV/SqlQueryClass/blob/main/LICENSE"
+  },
+  "Pester": {
+    "TestResult": {
+      "Enabled": true,
+      "OutputFormat": "NUnitXml"
+    },
+    "Output": {
+      "Verbosity": "Detailed"
+    }
+  }
+}
