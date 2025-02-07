@@ -554,7 +554,7 @@ class SqlQueryDataSet {
     # Method
     [Object] Execute([SqlQueryTable]$table) {
         $SQLReader = $null
-        $table.SQLCommand = GetSqlCommand($table.Query)
+        $table.SQLCommand = $This.GetSqlCommand($table.Query)
         Try {
             If ($table.ResultType -in @([ResultType]::DataTable, [ResultType]::DataRows)) {
                 $SQLReader = $table.SQLCommand.ExecuteReader()
