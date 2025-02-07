@@ -1,6 +1,6 @@
 <div align="center" width="100%">
     <h1>SqlQueryClass</h1>
-    <p>Module that create an instance of a PowerShell class which is used to execute SQL Queries and manages output as DataTable, DataAdapter, DataSet, SqlReader, or NonQuery result object.</p><p>
+    <p>Module that create an instance of a PowerShell class which is used to execute SQL Queries and manages output as DataTable, DataAdapter, DataSet, DataRows, or NonQuery result object.</p><p>
     <a target="_blank" href="https://github.com/BrooksV"><img src="https://img.shields.io/badge/maintainer-BrooksV-orange" /></a>
     <a target="_blank" href="https://github.com/BrooksV/SqlQueryClass/graphs/contributors/"><img src="https://img.shields.io/github/contributors/BrooksV/SqlQueryClass.svg" /></a><br>
     <a target="_blank" href="https://github.com/BrooksV/SqlQueryClass/commits/"><img src="https://img.shields.io/github/last-commit/BrooksV/SqlQueryClass.svg" /></a>
@@ -79,7 +79,7 @@ Execute                    Method     System.Object Execute(), System.Object Exe
 ExecuteAsDataAdapter       Method     System.Object ExecuteAsDataAdapter(string SqlQuery)
 ExecuteAsDataSet           Method     System.Object ExecuteAsDataSet(string SqlQuery)
 ExecuteAsDataTable         Method     System.Object ExecuteAsDataTable(string SqlQuery)
-ExecuteAsSqlReader         Method     System.Object ExecuteAsSqlReader(string SqlQuery)
+ExecuteAsDataRows          Method     System.Object ExecuteAsDataRows(string SqlQuery)
 ExecuteNonQuery            Method     System.Object ExecuteNonQuery(string SqlQuery)
 ExecuteQuery               Method     System.Object ExecuteQuery(string SqlQuery), System.Object ExecuteQuery(string TableName, string SqlQuery)
 GetCreateBasicDLL          Method     System.Object GetCreateBasicDLL(string TableName)
@@ -123,7 +123,6 @@ class SqlQueryDataSet {
     [int]$CommandTimeout = 600
     [string]$ConnectionString
     [object]$SQLConnection
-    hidden [object]$SQLReader
     [int]$TableIndex = 0
     [System.Collections.Generic.List[SqlQueryTable]]$Tables
     [System.Collections.Hashtable]$TableNames = @{}
@@ -163,7 +162,11 @@ class SqlQueryTable {
 }
 ```
 
-The ResultsType property defines how the query will be executed and the DataType for the result. ResultType values are: DataTable; DataAdapter; DataSet; SqlReader; and NonQuery.
+The ResultsType property defines how the query will be executed and the DataType for the result. ResultType values are: DataTable; DataAdapter; DataSet; DataRows; and NonQuery.
+
+ResultType of DataTable and DataRows use the [System.Data.SqlClient.SqlDataReader] approach to load() a DataTable object and return [SqlQueryTable]$table.Result as [System.Data.DataTable] or [Array][System.Data.DataRow]
+
+ResultType of DataAdapter and DataSet returns [SqlQueryTable]$table.Result as [System.Data.DataSet] and retains the SqlDataAdapter used in [SqlQueryTable]$table.SqlDataAdapter
 
 ### New-SqlQueryDataSet Examples
 

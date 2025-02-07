@@ -5,7 +5,7 @@
     SqlQueryClass.ps1 -- Dot Source file of SQL Query Class definitions for classes [SqlQueryDataSet] and [SqlQueryTable]
 
 .DESCRIPTION
-    This script defines two PowerShell classes [SqlQueryDataSet] and [SqlQueryTable] which are used to execute SQL Queries and return the results in a DataTable, DataAdapter, DataSet, SqlReader or NonQuery.
+    This script defines two PowerShell classes [SqlQueryDataSet] and [SqlQueryTable] which are used to execute SQL Queries and return the results in a DataTable, DataAdapter, DataSet, DataRows ([Array]DataRow) or NonQuery.
 
     The parent class, [SqlQueryDataSet], is designed to manage SQL Server connections, execute queries, and methods to manage data. 
     The child class, [SqlQueryTable], is designed to manage a table SQL query's configuration and query results.
@@ -44,7 +44,7 @@ A Query can be added to the [SqlQueryDataSet] object in the following ways:
     $TestQuery.ExecuteAsDataTable($Query)
     $TestQuery.ExecuteAsDataAdapter($Query)
     $TestQuery.ExecuteAsDataSet($Query)
-    $TestQuery.ExecuteAsSqlReader($Query)
+    $TestQuery.ExecuteAsDataRows($Query)
     $TestQuery.AddQuery($Query)
     $TestQuery.LoadQueryFromFile($PathToSQLFile)
 
@@ -95,7 +95,7 @@ Helper Methods
 $TestQuery.BuildOleDbConnectionString() -- Builds a connection string for OleDb
 $TestQuery.BuildConnectionString() -- [Hidden] Builds a connection string for SqlClient used as a fallback when $TestQuery.ConnectionString is missing or fails
 $TestQuery.Clear() -- Closes the connection and clears all the properties and collections of the [SqlQueryDataSet] object
-$TestQuery.CloseConnection() -- Closes the SQL Connection and clears the SQLReader
+$TestQuery.CloseConnection() -- Closes the SQL Connection
 $TestQuery.GetCreateBasicDLL($TableName) -- Returns a DataTable with the basic structure of a table with the following columns: Id, CreatedOn, CreatedBy, UpdatedOn, UpdatedBy
 $TestQuery
 $TestQuery
@@ -113,7 +113,7 @@ Execute                    Method     System.Object Execute(), System.Object Exe
 ExecuteAsDataAdapter       Method     System.Object ExecuteAsDataAdapter(string SqlQuery)
 ExecuteAsDataSet           Method     System.Object ExecuteAsDataSet(string SqlQuery)
 ExecuteAsDataTable         Method     System.Object ExecuteAsDataTable(string SqlQuery)
-ExecuteAsSqlReader         Method     System.Object ExecuteAsSqlReader(string SqlQuery)
+ExecuteAsDataRows          Method     System.Object ExecuteAsDataRows(string SqlQuery)
 ExecuteNonQuery            Method     System.Object ExecuteNonQuery(string SqlQuery)
 ExecuteQuery               Method     System.Object ExecuteQuery(string SqlQuery), System.Object ExecuteQuery(string TableName, string SqlQuery)
 GetCreateBasicDLL          Method     System.Object GetCreateBasicDLL(string TableName)
@@ -219,7 +219,6 @@ $ConnectionString = "Data Source={0};AttachDbFilename={1};Integrated Security=Tr
 
 # Create a new instance of SqlQueryDataSet
 $TestQuery = New-SqlQueryDataSet -SQLServer $SqlServer -Database $DatabaseName -ConnectionString $ConnectionString -DisplayResults $true
-
 # There are at least 12 different overloaded Execute methods used execute queries and return results as different object types.
 
 # Example usage of the class
@@ -230,6 +229,13 @@ $TestQuery.Tables[0].Result
 
 # Changing an existing Table Query and then executing it.
 $TestQuery.Tables[0].Query = "SELECT * FROM INFORMATION_SCHEMA.TABLES"
+$TestQuery.Execute($TestQuery.Tables[0])
+
+$TestQuery = New-SqlQueryDataSet -SQLServer $SqlServer -Database $DatabaseName -ConnectionString $ConnectionString -DisplayResults $true -TableName 'Category' -Query 'SELECT * FROM [dbo].Category;'
+$TestQuery = New-SqlQueryDataSet -SQLServer $SqlServer -Database $DatabaseName -ConnectionString $ConnectionString -DisplayResults $false
+$TestQuery.ExecuteQuery('Category', 'SELECT * FROM [dbo].Category;')
+$TestQuery.Tables[0].Result[0]
+$TestQuery.DisplayResults = $false
 $TestQuery.Execute($TestQuery.Tables[0])
 
 .NOTES
@@ -249,7 +255,7 @@ Execute                    Method     System.Object Execute(), System.Object Exe
 ExecuteAsDataAdapter       Method     System.Object ExecuteAsDataAdapter(string SqlQuery)
 ExecuteAsDataSet           Method     System.Object ExecuteAsDataSet(string SqlQuery)
 ExecuteAsDataTable         Method     System.Object ExecuteAsDataTable(string SqlQuery)
-ExecuteAsSqlReader         Method     System.Object ExecuteAsSqlReader(string SqlQuery)
+ExecuteAsDataRows          Method     System.Object ExecuteAsDataRows(string SqlQuery)
 ExecuteNonQuery            Method     System.Object ExecuteNonQuery(string SqlQuery)
 ExecuteQuery               Method     System.Object ExecuteQuery(string SqlQuery), System.Object ExecuteQuery(string TableName, string SqlQuery)
 GetCreateBasicDLL          Method     System.Object GetCreateBasicDLL(string TableName)
@@ -309,7 +315,7 @@ TableName      Property   string TableName {get;set;}
 
 #>
 
-enum ResultType { DataTable; DataAdapter; DataSet; SqlReader; NonQuery; }
+enum ResultType { DataTable; DataRows; DataAdapter; DataSet; NonQuery; }
 
 class SqlQueryTable {
     [int]$TableIndex = 0
@@ -333,23 +339,14 @@ class SqlQueryTable {
 class SqlQueryDataSet {
     [string]$SQLServer
     [string]$Database
-    # [string]$Query
-    # [string]$QueryFile
-    # [string]$Path
     [int]$ConnectionTimeout = 5
     [int]$CommandTimeout = 600
     # Connection string keywords: https://msdn.microsoft.com/en-us/library/system.data.sqlclient.sqlconnection.connectionstring(v=vs.110).aspx
     [string]$ConnectionString
     [object]$SQLConnection
-    # [object]$SQLCommand
-    # [object]$SqlDataAdapter
-    hidden [object]$SQLReader
-    # [object]$Result
-    # [ResultType]$Resulttype = [ResultType]::DataSet
     [int]$TableIndex = 0
     [System.Collections.Generic.List[SqlQueryTable]]$Tables
     [System.Collections.Hashtable]$TableNames = @{}
-    # [System.Data.DataTable]$Views
     [bool]$DisplayResults = $True
     [bool]$KeepAlive = $False
 
@@ -517,11 +514,6 @@ class SqlQueryDataSet {
 
     # Method
     [void] CloseConnection() {
-        If ($This.SQLReader -and -not $This.SQLReader.IsClosed) {
-            $This.SQLReader.Close()
-            $This.SQLReader.Dispose()
-            $This.SQLReader = $null
-        }
         If ($This.SQLConnection) {
             $This.SQLConnection.Close()
             $This.SQLConnection.Dispose()
@@ -529,26 +521,27 @@ class SqlQueryDataSet {
         }
     }
 
+    # Method
+    [System.Data.SqlClient.SqlCommand] GetSqlCommand([string]$query) {
+        $This.OpenConnection()
+        $SQLCommand = $This.SQLConnection.CreateCommand()
+        $SQLCommand.CommandText = $query
+        $SQLCommand.CommandTimeout = $This.CommandTimeout
+        $SQLCommand.Connection = $This.SQLConnection
+        Return $SQLCommand
+    }
+
     [void] Clear() {
         $This.CloseConnection()
         $This.SQLServer = $null
         $This.Database = $null
-        # $This.Query = $null
-        # $This.QueryFile = $null
-        # $This.Path = $null
         $This.ConnectionTimeout = 5
         $This.CommandTimeout = 600
         $This.ConnectionString = $null
         $This.SQLConnection = $null
-        # $This.SQLCommand = $null
-        # $This.SqlDataAdapter = $null
-        $This.SQLReader = $null
-        # $This.ResultType = [ResultType]::DataTable
         $This.TableIndex = 0
-        # $This.Result = $null
         $This.Tables.Clear()
         $This.TableNames.Clear()
-        # $This.Views = $null
         $This.DisplayResults = $True
         $This.KeepAlive = $False
     }
@@ -560,64 +553,53 @@ class SqlQueryDataSet {
     }
     # Method
     [Object] Execute([SqlQueryTable]$table) {
-        $This.OpenConnection()
+        $SQLReader = $null
+        $table.SQLCommand = GetSqlCommand($table.Query)
         Try {
-            $table.SQLCommand = $This.SQLConnection.CreateCommand()
-            $table.SQLCommand.CommandText = $table.Query
-            $table.SQLCommand.CommandTimeout = $This.CommandTimeout
-            $table.SQLCommand.Connection = $This.SQLConnection
-            If ($table.ResultType -eq [ResultType]::DataTable) {
-                $This.SQLReader = $table.SQLCommand.ExecuteReader()
-                If ($This.SQLReader) {
+            If ($table.ResultType -in @([ResultType]::DataTable, [ResultType]::DataRows)) {
+                $SQLReader = $table.SQLCommand.ExecuteReader()
+                If ($SQLReader) {
                     $table.Result = [System.Data.DataTable]::new()
-                    $table.Result.Load($This.SQLReader)
+                    $table.Result.Load($SQLReader)
                     If ($This.DisplayResults) {
-                        Return $table.Result.Tables[0]
+                        If ($table.ResultType -eq [ResultType]::DataTable) {
+                            Return ,$table.Result
+                        } Else {
+                            Return $table.Result
+                        }
                     }
                 }
             } ElseIf ($table.ResultType -eq [ResultType]::DataAdapter) {
-                $table.SqlDataAdapter = [System.Data.SqlClient.SqlDataAdapter]::new($table.SQLCommand)
-                $SqlCommandBuilder = [System.Data.SqlClient.SqlCommandBuilder]::new($table.SqlDataAdapter)
-                $SqlCommandBuilder.DataAdapter = $table.SqlDataAdapter
-
                 $table.Result = [System.Data.DataSet]::new()
+                $table.SqlDataAdapter = [System.Data.SqlClient.SqlDataAdapter]::new($table.SQLCommand)
                 [void]$table.SqlDataAdapter.Fill($table.Result)
-                $SqlCommandBuilder.DataAdapter = $table.SqlDataAdapter
-                $SqlCommandBuilder.QuotePrefix = "["
-                $SqlCommandBuilder.QuoteSuffix = "]"
 
-                Try { $table.SqlDataAdapter.DeleteCommand = $SqlCommandBuilder.GetDeleteCommand()
-                } Catch { 
-                    Write-Warning "Failed to get DeleteCommand: $_"
-                }
+                # $SqlCommandBuilder = [System.Data.SqlClient.SqlCommandBuilder]::new($table.SqlDataAdapter)
+                # $SqlCommandBuilder.DataAdapter = $table.SqlDataAdapter
+                # $SqlCommandBuilder.QuotePrefix = "["
+                # $SqlCommandBuilder.QuoteSuffix = "]"
+                # Try { $table.SqlDataAdapter.DeleteCommand = $SqlCommandBuilder.GetDeleteCommand()
+                # } Catch { 
+                #     Write-Warning "Failed to get DeleteCommand: $_"
+                # }
+                # Try { $table.SqlDataAdapter.UpdateCommand = $SqlCommandBuilder.GetUpdateCommand()
+                # } Catch {
+                #     Write-Warning "Failed to get UpdateCommand: $_" 
+                # }
+                # Try { $table.SqlDataAdapter.InsertCommand = $SqlCommandBuilder.GetInsertCommand()
+                # } Catch {
+                #     Write-Warning "Failed to get InsertCommand: $_" 
+                # }
 
-                Try { $table.SqlDataAdapter.UpdateCommand = $SqlCommandBuilder.GetUpdateCommand()
-                } Catch {
-                    #Write-Warning "Failed to get UpdateCommand: $_" 
-                }
-
-                Try { $table.SqlDataAdapter.InsertCommand = $SqlCommandBuilder.GetInsertCommand()
-                } Catch {
-                    Write-Warning "Failed to get InsertCommand: $_" 
-                }
                 If ($This.DisplayResults) {
                     Return $table.Result.Tables[0]
                 }
             } ElseIf ($table.ResultType -eq [ResultType]::DataSet) {
-                $table.SqlDataAdapter = [System.Data.SqlClient.SqlDataAdapter]::new($table.SQLCommand)
                 $table.Result = [System.Data.DataSet]::new()
+                $table.SqlDataAdapter = [System.Data.SqlClient.SqlDataAdapter]::new($table.SQLCommand)
                 [void]$table.SqlDataAdapter.Fill($table.Result)
                 If ($This.DisplayResults) {
                     Return $table.Result.Tables[0]
-                }
-            } ElseIf ($table.ResultType -eq [ResultType]::SqlReader) {
-                $This.SQLReader = $table.SQLCommand.ExecuteReader()
-                If ($This.SQLReader) {
-                    $this.KeepAlive = $true
-                    $table.Result = $This.SQLReader
-                    If ($This.DisplayResults) {
-                        Return $table.Result
-                    }
                 }
             } ElseIf ($table.ResultType -eq [ResultType]::NonQuery) {
                 $table.Result = $table.SQLCommand.ExecuteNonQuery()
@@ -625,10 +607,14 @@ class SqlQueryDataSet {
             }
         } Catch {
             $This.SQLConnection.Close()
-            return $(Write-host ($_ | Out-String) -ForegroundColor Red)           
+            Return $(Write-host ($_ | Out-String) -ForegroundColor Red)           
         } Finally {
             If (-not $this.KeepAlive) {
                 $This.CloseConnection()
+            }
+            If ($SQLReader -and -not $SQLReader.IsClosed) {
+                $SQLReader.Close()
+                $SQLReader.Dispose()
             }
         }
         Return $null
@@ -720,12 +706,12 @@ class SqlQueryDataSet {
     }
 
     # Method
-    [Object] ExecuteAsSqlReader([String]$SqlQuery) {
+    [Object] ExecuteAsDataRows([String]$SqlQuery) {
         If ($SqlQuery) {
             $This.TableIndex = $This.AddQuery($SqlQuery)
         }
         $table = $This.Tables[$This.TableIndex]
-        $table.ResultType = [ResultType]::SqlReader
+        $table.ResultType = [ResultType]::DataRows
         Return ($This.Execute($table))
     }
 
@@ -753,6 +739,17 @@ class SqlQueryDataSet {
             # $dataView.RowStateFilter = ([System.Data.DataViewRowState]::Deleted -bor [System.Data.DataViewRowState]::Added -bor [System.Data.DataViewRowState]::ModifiedCurrent)
             # ForEach ($row in $dataView) {Write-Host ($row | FT -AutoSize | Out-String).Trim()}
             # Write-Host ($dataView | FT -AutoSize | Out-String).Trim()
+
+            $commandBuilder = [System.Data.SqlClient.SqlCommandBuilder]::new($table.SqlDataAdapter)
+            $table.SqlDataAdapter.UpdateCommand = $commandBuilder.GetUpdateCommand()
+            $table.SqlDataAdapter.InsertCommand = $commandBuilder.GetInsertCommand()
+            $table.SqlDataAdapter.DeleteCommand = $commandBuilder.GetDeleteCommand()
+
+            If ($table.ResultType -in @([ResultType]::DataAdapter,[ResultType]::DataSet)) {
+                $table.SqlDataAdapter.Update($table.Result.Tables[0])
+            } ElseIf ($table.ResultType -eq [ResultType]::DataTable) {
+                $table.SqlDataAdapter.Update($table.Result)
+            }
 
             If (-not [String]::IsNullOrEmpty($table.SqlDataAdapter.DeleteCommand)) {
                 $table.SqlDataAdapter.DeleteCommand.Connection = $This.SQLConnection
@@ -921,149 +918,3 @@ class SqlQueryDataSet {
     }
 
 }
-
-<#
-$query = "SELECT * FROM [dbo].[Category] ORDER BY Category"
-$query -match '^.*FROM[ \n\r]+(?<schema>\w+)[. \n\r]+(\w+)[ \n\r]+(?<tableName>\w+)$'
-$Matches
-
-$query -match '^.*?(FROM|INTO|JOIN)\s`?(?<schemaTable>[^` ]*).*$'
-$Matches
-
-$query -match "\bJOIN\s+(?<Retrieve>[a-zA-Z\._\d\[\]]+)\b|\bFROM\s+(?<Retrieve>[a-zA-Z\._\d\[\]]+)\b|\bUPDATE\s+(?<Update>[a-zA-Z\._\d]+)\b|\bINSERT\s+(?:\bINTO\b)?\s+(?<Insert>[a-zA-Z\._\d]+)\b|\bTRUNCATE\s+TABLE\s+(?<Delete>[a-zA-Z\._\d]+)\b|\bDELETE\s+(?:\bFROM\b)?\s+(?<Delete>[a-zA-Z\._\d]+)\b"
-$Matches
-
-# $query -match '[\s\t]*FROM[\s\t\r\n]([A-Za-z0-9_.]+)[\s\t\r\n]*([A-Za-z0-9_.\[\]]*)[\s\t\r\n]*'
-
-$query = "SELECT * FROM [dbo].[Category] ORDER BY Category"
-$query -match '[\s\t]*FROM[\s\t\r\n](?<schemaTable>[A-Za-z0-9_.\[\]]+).*$'
-$Matches
-
-
-$query = "SELECT * 
-FROM [dbo].[Category]
-ORDER BY Category"
-
-$query -match "\bJOIN\s+(?<Retrieve>[a-zA-Z\._\d\[\]]+)\b|\bFROM\s+(?<Retrieve>[a-zA-Z\._\d\[\]]+)\b|\bUPDATE\s+(?<Update>[a-zA-Z\._\d]+)\b|\bINSERT\s+(?:\bINTO\b)?\s+(?<Insert>[a-zA-Z\._\d]+)\b|\bTRUNCATE\s+TABLE\s+(?<Delete>[a-zA-Z\._\d]+)\b|\bDELETE\s+(?:\bFROM\b)?\s+(?<Delete>[a-zA-Z\._\d]+)\b"
-$Matches
-
-
-$query -match '^.*?(FROM|INTO|JOIN)\s`?(?<schemaTable>[^` ]*).*$'
-$Matches
-
-[ \n\r]+
-
-$query = "SELECT * 
-FROM [dbo].[Category]
-ORDER BY Category"
-
-$query -match '(?s)[\s\t]*FROM[\s\t\r\n]+(?<schemaTable>[A-Za-z0-9_. \[\] ]+).*$'
-$Matches
-
-$query = "SELECT * 
-FROM [dbo].[Category]
-ORDER BY Category"
-$query -match '([\s\t]*FROM[\s\t\r\n](?<schemaTable>[A-Za-z0-9_.\[\]]+).*$)|((?s)[\s\t]*FROM[\s\t\r\n]+(?<schemaTable>[A-Za-z0-9_. \[\] ]+).*$)'
-$Matches
-
-$query = "SELECT * FROM [dbo].[Category] ORDER BY Category"
-$query -match '([\s\t]*FROM[\s\t\r\n](?<schemaTable>[A-Za-z0-9_.\[\]]+).*$)|((?s)[\s\t]*FROM[\s\t\r\n]+(?<schemaTable>[A-Za-z0-9_. \[\] ]+).*$)'
-$Matches
-
-$query = "SELECT * FROM dbo.Category ORDER BY Category"
-$query -match '([\s\t]*FROM[\s\t\r\n](?<schemaTable>[A-Za-z0-9_.\[\]]+).*$)|((?s)[\s\t]*FROM[\s\t\r\n]+(?<schemaTable>[A-Za-z0-9_. \[\] ]+).*$)'
-$Matches
-
-$query = "SELECT * FROM Category ORDER BY Category"
-$query -match '([\s\t]*FROM[\s\t\r\n](?<schemaTable>[A-Za-z0-9_.\[\]]+).*$)|((?s)[\s\t]*FROM[\s\t\r\n]+(?<schemaTable>[A-Za-z0-9_. \[\] ]+).*$)'
-$Matches
-
-$schemaTable = $Matches.schemaTable
-$schemaTable -match '(?: \[(?<schema>[^ \[\] ]+)\] \.)?(?: \[?(?<tableName>[^ \[\] \.]+)\] ?)$'
-$schemaTable -match '(?i)\bFROM\s+((?<schema> \[?[A-Za-z0-9_]+\] ?)\.)?(?<tableName> \[?[A-Za-z0-9_]+\] ?)'
-
-$schemaTable = '[dbo].[Category]'
-# $schemaTable -match '[\[]?(?<schema>[A-Za-z0-9_]+)[\.\[\]]*(?<tableName>[A-Za-z0-9_]+)[\.\[\] ]?$'
-$schemaTable -match '([\[]?(?<tableName>[A-Za-z0-9_]+)[\.\[\] ]?$)|([\[]?(?<schema>[A-Za-z0-9_]+)[\.\[\]]*(?<tableName>[A-Za-z0-9_]+)[\.\[\] ]?$)'
-$Matches
-
-$schemaTable = 'dbo.[Category]'
-# $schemaTable -match '[\[]?(?<schema>[A-Za-z0-9_]+)[\.\[\]]*(?<tableName>[A-Za-z0-9_]+)[\.\[\] ]?$'
-$schemaTable -match '([\[]?(?<tableName>[A-Za-z0-9_]+)[\.\[\] ]?$)|([\[]?(?<schema>[A-Za-z0-9_]+)[\.\[\]]*(?<tableName>[A-Za-z0-9_]+)[\.\[\] ]?$)'
-$Matches
-
-$schemaTable = 'dbo.Category'
-# $schemaTable -match '[\[]?(?<schema>[A-Za-z0-9_]+)[\.\[\]]*(?<tableName>[A-Za-z0-9_]+)[\.\[\] ]?$'
-$schemaTable -match '([\[]?(?<tableName>[A-Za-z0-9_]+)[\.\[\] ]?$)|([\[]?(?<schema>[A-Za-z0-9_]+)[\.\[\]]*(?<tableName>[A-Za-z0-9_]+)[\.\[\] ]?$)'
-$Matches
-
-$schemaTable = '[Category]'
-$schemaTable -match '([\[]?(?<tableName>[A-Za-z0-9_]+)[\.\[\] ]?$)|([\[]?(?<schema>[A-Za-z0-9_]+)[\.\[\]]*(?<tableName>[A-Za-z0-9_]+)[\.\[\] ]?$)'
-$Matches
-
-$schemaTable = 'Category'
-$schemaTable -match '([\[]?(?<tableName>[A-Za-z0-9_]+)[\.\[\] ]?$)|([\[]?(?<schema>[A-Za-z0-9_]+)[\.\[\]]*(?<tableName>[A-Za-z0-9_]+)[\.\[\] ]?$)'
-$Matches
-
-$pattern = '([\[]?(?<tableName>[A-Za-z0-9_]+)[\.\[\] ]?$)|([\[]?(?<schema>[A-Za-z0-9_]+)[\.\[\]]*(?<tableName>[A-Za-z0-9_]+)[\.\[\] ]?$)'
-$schemaTable = '[dbo].[Category]'
-$schemaTable -match $pattern
-$Matches
-$schemaTable = 'dbo.[Category]'
-$schemaTable -match $pattern
-$Matches
-$schemaTable = '[dbo].Category'
-$schemaTable -match $pattern
-$Matches
-$schemaTable = 'dbo.Category'
-$schemaTable -match $pattern
-$Matches
-$schemaTable = '[Category]'
-$schemaTable -match $pattern
-$Matches
-$schemaTable = 'Category'
-$schemaTable -match $pattern
-$Matches
-
-$pattern = '([\[]?(?<tableName>[A-Za-z0-9_]+)[\.\[\] ]?$)|([\[]?(?<schema>[A-Za-z0-9_]+)[\.\[\]]*(?<tableName>[A-Za-z0-9_]+)[\.\[\] ]?$)'
-$schemaTableFormats = @('[dbo].[Category]', 'dbo.[Category]', '[dbo].Category', 'dbo.Category', '[Category]', 'Category')
-foreach ($schemaTable in $schemaTableFormats) {
-    if ($schemaTable -match $pattern) {
-        Write-Output "Match found for: $schemaTable"
-        Write-Output "Schema: $($Matches['schema'])"
-        Write-Output "Table Name: $($Matches['tableName'])"
-    } else {
-        Write-Output "No match found for: $schemaTable"
-    }
-}
-
-#>
-<# # >
-$SqlQueries = @(
-"SELECT TABLE_NAME `"Name`" FROM [F:\DATA\BILLS\PSSCRIPTS\SCANMYBILLS\DATABASE1.MDF].INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME NOT LIKE '[_]%' ORDER BY TABLE_TYPE, TABLE_NAME;"
-'SELECT * FROM [F:\DATA\BILLS\PSSCRIPTS\SCANMYBILLS\DATABASE1.MDF].[dbo].[Document] ORDER BY Id DESC;',
-'SELECT * FROM [F:\DATA\BILLS\PSSCRIPTS\SCANMYBILLS\DATABASE1.MDF].[dbo].Document ORDER BY Id DESC;',
-'SELECT * FROM [F:\DATA\BILLS\PSSCRIPTS\SCANMYBILLS\DATABASE1.MDF].dbo.Document ORDER BY Id DESC;',
-'SELECT * FROM [F:\DATA\BILLS\PSSCRIPTS\SCANMYBILLS\DATABASE1.MDF].dbo.[Document] ORDER BY Id DESC;',
-'SELECT * FROM F:\DATA\BILLS\PSSCRIPTS\SCANMYBILLS\DATABASE1.MDF.[dbo].[Document] ORDER BY Id DESC;',
-'SELECT * FROM F:\DATA\BILLS\PSSCRIPTS\SCANMYBILLS\DATABASE1.MDF.dbo.[Document] ORDER BY Id DESC;',
-'SELECT * FROM F:\DATA\BILLS\PSSCRIPTS\SCANMYBILLS\DATABASE1.MDF.dbo.Document ORDER BY Id DESC;',
-'SELECT * FROM [dbo].[Document] ORDER BY Id DESC;',
-'SELECT * FROM [dbo].Document ORDER BY Id DESC;',
-'SELECT * FROM dbo.Document ORDER BY Id DESC;',
-'SELECT * FROM dbo.[Document] ORDER BY Id DESC;'
-)
-foreach ($SqlQuery in $SqlQueries) {
-    If ($SqlQuery -like '*\*' -and $SqlQuery -like '*.MDF*') {
-        # $pattern = '([\s\t]*FROM[\s\t\r\n](?<databaseName>[A-Za-z0-9_\[\]]+)[.]{1}(?<schemaTable>[A-Za-z0-9_.\[\]]+).*$)|((?s)[\s\t]*FROM[\s\t\r\n]+(?<databaseName>[A-Za-z0-9_\[\]]+)[.]{1}(?<schemaTable>[A-Za-z0-9_. \[\] ]+).*$)'
-        $pattern = '([\s\t]*FROM[\s\t\r\n](?<databaseName>[\[]?[A-Za-z0-9_\:\\]+[\.MDF]{4}[\]]?)[.]{1}(?<schemaTable>[A-Za-z0-9_.\[\]]+).*$)'
-                    # ((?s)[\s\t]*FROM[\s\t\r\n]+(?<databaseName>[A-Za-z0-9_\[\]]+)[.]{1}(?<schemaTable>[A-Za-z0-9_. \[\] ]+).*$)'
-    } Else {
-        $pattern = '([\s\t]*FROM[\s\t\r\n](?<schemaTable>[A-Za-z0-9_.\[\]]+).*$)|((?s)[\s\t]*FROM[\s\t\r\n]+(?<schemaTable>[A-Za-z0-9_. \[\] ]+).*$)'
-    }
-    Write-Host $SqlQuery -ForegroundColor Green
-    if ($SqlQuery -match $pattern) {
-        $Matches
-    }
-}
-#>
