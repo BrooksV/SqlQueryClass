@@ -323,7 +323,7 @@ class SqlQueryTable {
     [string]$Query = [string]::Empty
     [object]$SQLCommand = $null
     [object]$SqlDataAdapter = $null
-    [ResultType]$ResultType = [ResultType]::NonQuery
+    [ResultType]$ResultType = [ResultType]::DataTable
     [object]$Result = $null
     [bool]$isDirty = $false
     [string]$QueryFile = [string]::Empty
