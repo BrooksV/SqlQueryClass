@@ -52,9 +52,9 @@ function New-SqlQueryDataSet {
         } else {
             $instance = [SqlQueryDataSet]::new($SQLServer, $Database)
             if ([string]::IsNullOrEmpty($TableName)) {
-                $instance.AddQuery($Query)
+                [void]$instance.AddQuery($Query)
             } else {
-                $instance.AddQuery($Query, $TableName)
+                [void]$instance.AddQuery($Query, $TableName)
             }
             $instance
         }
@@ -64,9 +64,9 @@ function New-SqlQueryDataSet {
         if (-not [string]::IsNullOrEmpty($Database)) { $instance.Database = $Database }
         if ($Query) {
             if ([string]::IsNullOrEmpty($TableName)) {
-                $instance.AddQuery($Query)
+                [void]$instance.AddQuery($Query)
             } else {
-                $instance.AddQuery($Query, $TableName)
+                [void]$instance.AddQuery($Query, $TableName)
             }
         }
         $instance
