@@ -13,6 +13,10 @@
     - [SqlQueryDataSet]::new(string SQLServer, string Database)
     - [SqlQueryDataSet]::new(string SQLServer, string Database, string Query)
 
+    Explanation of Parameter Sets:
+    - **`ServerDatabase`**: This parameter set allows the user to specify the SQL Server and Database separately without needing a full connection string.
+    - **`ServerDatabaseWithConnectionString`**: This parameter set allows the user to provide both the SQL Server and Database separately, or use a connection string.
+    - **`ConnectionString`**: This parameter set allows the user to provide a connection string directly.
 .PARAMETER SQLServer
     The name or address of the SQL Server to connect to. This parameter is optional, but when used, must be specified with $Database.
 .PARAMETER Database
@@ -26,10 +30,14 @@
 .PARAMETER DisplayResults
     Boolean flag indicating whether to display the query results. The default value is $true.
     The [SqlQueryDataSet] class uses this flag to output content to standard out when executing content generating methods such as Execute().
+.FUNCTIONALITY
+    Creates and initializes an Instance of [SqlQueryDataSet] class
+.OUTPUTS
+    Object of [SqlQueryDataSet] class
 .EXAMPLE
     $result = New-SqlQueryDataSet -SQLServer "myServer" -Database "myDB" -Query "SELECT * FROM myTable"
 .EXAMPLE
-    $result = New-SqlQueryDataSet -ConnectionString "Server=myServer;Database=myDB;User Id=myUser;Password=myPass;" -Query "SELECT * FROM myTable" -DisplayResults $false
+    $result = New-SqlQueryDataSet -ConnectionString "Server=myServer;Database=myDB;User Id=myUser;Password=myPass;" -Query "SELECT * FROM myTable" -TableName myTable -DisplayResults $false
 .NOTES
     Author: Brooks Vaughn
     Date: 2025-02-01
@@ -38,20 +46,22 @@
 
 function New-SqlQueryDataSet {
     [CmdletBinding(DefaultParameterSetName = 'ServerDatabase')]
+    # Suppress PSScriptAnalyzer rule about ShouldProcess
+    [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseShouldProcessForStateChangingFunctions", "")]
+
     param (
-        [Parameter(ParameterSetName = 'ServerDatabase', Mandatory = $false)]
-        [Parameter(ParameterSetName = 'ServerDatabaseWithConnectionString', Mandatory = $false)]
+        [Parameter(Mandatory = $false)]
         [string]$SQLServer,
 
-        [Parameter(ParameterSetName = 'ServerDatabase', Mandatory = $false)]
-        [Parameter(ParameterSetName = 'ServerDatabaseWithConnectionString', Mandatory = $false)]
+        [Parameter(Mandatory = $false)]
+        [ValidateScript({ if ($SQLServer -and -not $_) { throw "Database must be provided if SQLServer is specified." } else { $true } })]
         [string]$Database,
 
-        [Parameter(ParameterSetName = 'ConnectionString', Mandatory = $false)]
-        [Parameter(ParameterSetName = 'ServerDatabaseWithConnectionString', Mandatory = $false)]
+        [Parameter(Mandatory = $false)]
         [string]$ConnectionString,
 
         [Parameter(Mandatory = $false)]
+        [ValidateScript({ if ($TableName -and -not $_) { throw "Query must be provided if TableName is specified." } else { $true } })]
         [string]$Query,
 
         [Parameter(Mandatory = $false)]
@@ -61,39 +71,35 @@ function New-SqlQueryDataSet {
         [bool]$DisplayResults = $true
     )
 
-    # Suppress PSScriptAnalyzer rule about ShouldProcess
-    [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseShouldProcessForStateChangingFunctions", "")]
+    # Function logic here
+    if ($SQLServer -and -not $Database) {
+        Write-Warning "Database must be provided if SQLServer is specified."
+    }
 
-    $SqlQueryInstance = if ([string]::IsNullOrEmpty($SQLServer) -and [string]::IsNullOrEmpty($ConnectionString) -and [string]::IsNullOrEmpty($Database)) {
-        [SqlQueryDataSet]::new()
-    } elseif (-not [string]::IsNullOrEmpty($SQLServer) -and -not [string]::IsNullOrEmpty($Database)) {
-        if ([string]::IsNullOrEmpty($Query)) {
-            [SqlQueryDataSet]::new($SQLServer, $Database)
-        } else {
-            $instance = [SqlQueryDataSet]::new($SQLServer, $Database)
-            if ([string]::IsNullOrEmpty($TableName)) {
-                [void]$instance.AddQuery($Query)
-            } else {
-                [void]$instance.AddQuery($Query, $TableName)
-            }
-            $instance
-        }
+    if ($Database -and -not $SQLServer) {
+        Write-Warning "SQLServer must be provided if Database is specified."
+    }
+
+    if ($TableName -and -not $Query) {
+        Write-Warning "Query must be provided if TableName is specified."
+    }
+
+    $instance = $null
+    if (-not [string]::IsNullOrEmpty($SQLServer) -and -not [string]::IsNullOrEmpty($Database)) {
+        $instance = [SqlQueryDataSet]::new($SQLServer, $Database)
     } else {
         $instance = [SqlQueryDataSet]::new()
-        if (-not [string]::IsNullOrEmpty($SQLServer)) { $instance.SQLServer = $SQLServer }
-        if (-not [string]::IsNullOrEmpty($Database)) { $instance.Database = $Database }
-        if ($Query) {
-            if ([string]::IsNullOrEmpty($TableName)) {
-                [void]$instance.AddQuery($Query)
-            } else {
-                [void]$instance.AddQuery($Query, $TableName)
-            }
-        }
-        $instance
     }
-    
-    if ($ConnectionString) { $SqlQueryInstance.ConnectionString = $ConnectionString }
-    $SqlQueryInstance.DisplayResults = $DisplayResults
-    
-    return $SqlQueryInstance
+    if (-not [string]::IsNullOrEmpty($Query)) {
+        if (-not [string]::IsNullOrEmpty($TableName)) {
+            [void]$instance.AddQuery($Query, $TableName)
+        } else {
+            [void]$instance.AddQuery($Query)
+        }
+    }
+    if (-not [string]::IsNullOrEmpty($ConnectionString)) { $instance.ConnectionString = $ConnectionString }
+    if (-not [string]::IsNullOrEmpty($SQLServer)) { $instance.SQLServer = $SQLServer }
+    if (-not [string]::IsNullOrEmpty($Database)) { $instance.Database = $Database }
+    $instance.DisplayResults = $DisplayResults
+    return $instance
 }
