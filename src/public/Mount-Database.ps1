@@ -15,6 +15,6 @@ Function Mount-Database {
 <# Usage Example: # >
 $Error.Clear()
 Mount-Database
-Get-Databases
+Get-Database
 # Mount-Database -Database 'TestDataBase1' -DatabaseFilePath 'C:\Git\SqlQueryClass\tests\TestDatabase1.mdf'
 #>

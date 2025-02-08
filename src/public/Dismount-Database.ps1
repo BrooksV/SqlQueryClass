@@ -16,5 +16,5 @@ $Error.Clear()
 # Dismount-Database
 # Dismount-Database -Database:$null
 Dismount-Database -Database 'TestDataBase1'
-Get-Databases
+Get-Database
 #>

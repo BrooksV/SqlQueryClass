@@ -1,4 +1,4 @@
-Function Get-Databases {
+Function Get-Database {
     Param (
         $connectionString = "Data Source=(localdb)\MSSQLLocalDB;Integrated Security=True",
         $query = "SELECT name FROM sys.databases;",
@@ -10,7 +10,7 @@ Function Get-Databases {
     Invoke-DatabaseQuery @Splat -Quiet:$Quiet
 }
 <# Usage Examples # >
-Get-Databases
-Get-Databases -Quiet
-Get-Databases -connectionString:$null
+Get-Database
+Get-Database -Quiet
+Get-Database -connectionString:$null
 #>

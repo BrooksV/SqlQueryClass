@@ -179,39 +179,3 @@ Describe 'New-SqlQueryDataSet' {
         }
     }
 }
-
-
-# Create a new SQL Server connection
-$connectionString = "Data Source=(localdb)\MSSQLLocalDB;Integrated Security=True"
-$connection = New-Object System.Data.SqlClient.SqlConnection($connectionString)
-$connection.Open()
-
-# Create a command to detach the database
-$detachCommand = $connection.CreateCommand()
-$detachCommand.CommandText = "EXEC sp_detach_db 'DATABASE1'"
-$detachCommand.ExecuteNonQuery()
-$connection.Close()
-
-# Define the source and destination paths
-$sourcePath = "F:\DATA\BILLS\PSSCRIPTS\SCANMYBILLS\DATABASE1.MDF"
-$destinationPath = "C:\Git\SqlQueryClass\tests\TestDatabase1.mdf"
-
-# Move and rename the file
-Move-Item -Path $sourcePath -Destination $destinationPath
-
-# Create a new SQL Server connection
-$connection.Open()
-
-# Create a command to attach the database
-$attachCommand = $connection.CreateCommand()
-$attachCommand.CommandText = @"
-CREATE DATABASE TestDatabase1
-ON (FILENAME = 'C:\Git\SqlQueryClass\tests\TestDatabase1.mdf')
-FOR ATTACH
-"@
-$attachCommand.ExecuteNonQuery()
-$connection.Close()
-
-$ConnectionString = 'Data Source=(localdb)\MSSQLLocalDB;AttachDbFilename=C:\Git\SqlQueryClass\tests\TestDatabase1.mdf;Integrated Security=True'
-
-
