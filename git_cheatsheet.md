@@ -400,16 +400,59 @@ git push origin master --force
 ## 2025-02-05 22:59:55
 
 ```powershell
+git fetch origin main
+git checkout main
+git reset --hard origin/main
 git pull origin main
 
 git checkout -b features/readme-updates
+git checkout features/readme-updates
 git status
+
+# Rename Branch
+git branch -m features/database-table-access
+
+# Delete old branch from remote repository
+git push origin --delete features/readme-updates
+
+# Push the renamed branch and set upstream:
+git push --set-upstream origin features/database-table-access
+git push origin features/database-table-access
+
+# Stage and Commit Your Changes:
+git add .
+git commit -m "Implemented database and table access functions"
+
+# Push Your Changes to the Remote Branch:
+git push origin features/database-table-access
 
 git commit -m ""
 
 git commit -a -m "Updated SQL query class and added error handling"
-
 git push
+```
+
+## 2025-02-08 14:08:55
+
+```powershell
+git fetch origin main
+git checkout main
+git reset --hard origin/main
+git pull origin main
+
+git checkout -b features/reverse-parameters-for-AddQuery
+git checkout features/reverse-parameters-for-AddQuery
+git status
+
+# Rename Branch
+git branch -m features/database-table-access
+
+# Delete old branch from remote repository
+git push origin --delete features/readme-updates
+
+# Push the renamed branch and set upstream:
+git push --set-upstream origin features/database-table-access
+git push origin features/database-table-access
 ```
 
 ```powershell
