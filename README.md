@@ -1,6 +1,6 @@
 <div align="center" width="100%">
     <h1>SqlQueryClass</h1>
-    <p>Module that create an instance of a PowerShell class which is used to execute SQL Queries and manages output as DataTable, DataAdapter, DataSet, SqlReader, or NonQuery result object.</p><p>
+    <p>Module that create an instance of a PowerShell class which is used to execute SQL Queries and manages output as DataTable, DataAdapter, DataSet, DataRows, or NonQuery result object.</p><p>
     <a target="_blank" href="https://github.com/BrooksV"><img src="https://img.shields.io/badge/maintainer-BrooksV-orange" /></a>
     <a target="_blank" href="https://github.com/BrooksV/SqlQueryClass/graphs/contributors/"><img src="https://img.shields.io/github/contributors/BrooksV/SqlQueryClass.svg" /></a><br>
     <a target="_blank" href="https://github.com/BrooksV/SqlQueryClass/commits/"><img src="https://img.shields.io/github/last-commit/BrooksV/SqlQueryClass.svg" /></a>
@@ -39,6 +39,7 @@ Import-Module -Name ".\dist\SqlQueryClass\SqlQueryClass.psd1" -Force -verbose
 
 - Tested with PowerShell 5.1 and 7.5x
 - No known dependencies for usage
+- VS Code and clone [Brooks Vaughn's SqlQueryClass](https://github.com/BrooksV/SqlQueryClass) Repository
 - Module build process uses [Manjunath Beli's](https://github.com/belibug) [ModuleTools](https://github.com/belibug) module.
 
 ## ToDo
@@ -57,60 +58,130 @@ New-SqlQueryDataSet helper function is used to creates an instance of the [SqlQu
 
 It is best to read the details in the details `.\src\private\SqlQueryClass.ps1` and in `.\src\public\New-SqlQueryDataSet.ps1` files.
 
+## How Build `SqlQueryClass` Module
+
+### Setup
+
+- Uses SQL Express but should work with other SQL Databases with proper connection strings and credentials
+- Requires VS Code
+- For Contributors, Fork the [SqlQueryClass](https://github.com/BrooksV/SqlQueryClass) repository
+- Clone the repository or fork to local pc. I like using c:\git as my local repository folder. Subfolder `SqlQueryClass` will be created with the GiHib repository contents
+- Install [Manjunath Beli's ModuleTools](https://github.com/belibug/ModuleTools) module as the module build process uses ModuleTools
+- - Find-Module -Name ModuleTools | Install-Module -Scope CurrentUser -Verbose
+- Note that a sample SQL Express database file (.\tests\TestDatabase1.mdf) is included for pester tests. The database configuration is set in .\tests\TestDatabase1.parameters.psd1
+
+#### Source Files used in the Module
+
+- Public functions that are exported, are separate files in the .\src\public folder.
+- Private functions that are local to the Module, are separate files in the .\src\private folder.
+- - Class Definitions and Enums are not accessible outside of the Module and cannot be accessed directly like Public Functions are. This is a PowerShell limitation.
+- - - Classes [SqlQueryDataSet] and [SqlQueryDataSetParms] and enum ResultType used in the Module are defined in file .\src\private\SqlQueryClass.ps1 file. The classes have properties and methods used to maintain a Database connections and result sets making it useful WPF Data binding.
+- Resources are files and folders in the .\src\resources folder that needs to be included with the Manifest and Module
+
+#### `SqlQueryClass` Module Build Process
+
+- Create a local branch for your changes
+- - Use descriptive name that reflects the type of changes for branch for example features/database-table-access
+- Update the build version using Update-MTModuleVersion (Find-Module -Name ModuleTools)
+- Commit your changes to the branch
+- Run the Pester Teats using Invoke-MTTest (Find-Module -Name ModuleTools)
+- Build the Module output using Invoke-MTBuild -Verbose (Find-Module -Name ModuleTools)
+- - Outputs to the .\dist\SqlQueryClass folder
+- - Combines the file contents of the files in Public and Private folder into .\dist\SqlQueryClass\SqlQueryClass.psd1 and exports the Public Functions
+- - Generates the .\dist\SqlQueryClass\SqlQueryClass.psd1 Manifest file from the settings in .\project.json
+- - Resources (.\src\resources) folder content is copied to .\dist\SqlQueryClass folder
+- Run the Pester Teats using Invoke-MTTest (Find-Module -Name ModuleTools)
+- Make corrections, repeat the build process
+- For Contributors
+- - Create an Issue if one does not exist that addresses the proposed changes
+- - Upstream your branch
+- - Create a Pull request
+
+#### Publishing `SqlQueryClass` Module to GitHub
+
+Stage and Commit Your Changes
+
+```powershell
+git add .
+git commit -m "Implemented database and table access functions"
+```
+
+Update remote repository with branch changes
+
+```powershell
+# List status of remote repository
+git branch -r
+# Create Branch on remote repository if needed
+# git push --set-upstream origin features/database-table-access
+# Push branch changes to remote branch in repository
+git push origin features/database-table-access
+```
+
+Create a Pull Request on remote repository
+
+- Go to [SqlQueryClass GitHub repository](https://github.com/BrooksV/SqlQueryClass)
+- Click on "Compare & pull request" for your branch
+- Provide a meaningful title and description for the PR
+- Select the base branch (main) to merge into
+- Click "Create pull request"
+
+Code Review and Feedback
+
+- Engage with Repository Owner or collaborators to review the PR
+- Address any feedback or requested changes by making additional commits to your branch and pushing them to the remote branch
+- Ensure the PR passes any automated tests or checks
+
+Merge the Pull Request
+
+- Once the PR is approved and all checks pass, you can merge it into the main branch
+- You can either use the "Merge pull request" button on GitHub or merge it locally and push the changes
+
+Cleanup
+
+- After merging, you can delete the feature branch from the remote repository to keep it clean
+
+```powershell
+git push origin --delete features/database-table-access
+```
+
+- Optionally, delete the local branch
+
+```powershell
+git branch -d features/database-table-access
+```
+These steps will ensure your changes are integrated into the main branch and your repository remains organized.
+
+#### Publishing `SqlQueryClass` Module to PowerShell Gallery
+
+```powershell
+$data = Get-MTProjectInfo
+$ApiKey = "your-api-key-here"
+Publish-Module -Path $data.OutputModuleDir -NuGetApiKey $ApiKey -Repository PSGallery
+```
+
 ### New-SqlQueryDataSet Helper Function to Create Class Instance
 
 The main cmdlet provided by this module is New-SqlQueryDataSet, which returns an object instance of [SqlQueryDataSet] class. Note that all the parameters are optional.
 
 ```powershell
 $testQuery = New-SqlQueryDataSet [[-SQLServer] <string>] [[-Database] <string>] [[-ConnectionString] <string>] [[-Query] <string>] [[-TableName] <string>] [[-DisplayResults] <bool>] [<CommonParameters>]
-
-$testquery | GM
-
-   TypeName: SqlQueryDataSet
-
-Name                       MemberType Definition
-----                       ---------- ----------
-AddQuery                   Method     int AddQuery(string Query), int AddQuery(string Query, string TableName)
-BuildOleDbConnectionString Method     string BuildOleDbConnectionString()
-Clear                      Method     void Clear()
-CloseConnection            Method     void CloseConnection()
-Equals                     Method     bool Equals(System.Object obj)
-Execute                    Method     System.Object Execute(), System.Object Execute(SqlQueryTable table), System.Object Execute(int TableIndex), System.Object Execute(string SqlQuery), System.Object Execute(ResultType ResultType)
-ExecuteAsDataAdapter       Method     System.Object ExecuteAsDataAdapter(string SqlQuery)
-ExecuteAsDataSet           Method     System.Object ExecuteAsDataSet(string SqlQuery)
-ExecuteAsDataTable         Method     System.Object ExecuteAsDataTable(string SqlQuery)
-ExecuteAsSqlReader         Method     System.Object ExecuteAsSqlReader(string SqlQuery)
-ExecuteNonQuery            Method     System.Object ExecuteNonQuery(string SqlQuery)
-ExecuteQuery               Method     System.Object ExecuteQuery(string SqlQuery), System.Object ExecuteQuery(string TableName, string SqlQuery)
-GetCreateBasicDLL          Method     System.Object GetCreateBasicDLL(string TableName)
-GetCreateDDL               Method     System.Object GetCreateDDL(string TableName)
-GetDBTableIndexes          Method     System.Object GetDBTableIndexes(string TableName)
-GetDBTableIndexesV17       Method     System.Object GetDBTableIndexesV17(string TableName)
-GetDBTableSchema           Method     System.Object GetDBTableSchema(string TableName)
-GetHashCode                Method     int GetHashCode()
-GetTableFromQuery          Method     System.Object GetTableFromQuery(string Query)
-GetTableFromTableName      Method     System.Object GetTableFromTableName(string TableName)
-GetType                    Method     type GetType()
-LoadQueryFromFile          Method     void LoadQueryFromFile(string Path)
-OpenConnection             Method     void OpenConnection()
-ParseSQLQuery              Method     System.Object ParseSQLQuery(string Query)
-SaveChanges                Method     System.Object SaveChanges()
-ToString                   Method     string ToString()
-CommandTimeout             Property   int CommandTimeout {get;set;}
-ConnectionString           Property   string ConnectionString {get;set;}
-ConnectionTimeout          Property   int ConnectionTimeout {get;set;}
-Database                   Property   string Database {get;set;}
-DisplayResults             Property   bool DisplayResults {get;set;}
-KeepAlive                  Property   bool KeepAlive {get;set;}
-SQLConnection              Property   System.Object SQLConnection {get;set;}
-SQLServer                  Property   string SQLServer {get;set;}
-TableIndex                 Property   int TableIndex {get;set;}
-TableNames                 Property   hashtable TableNames {get;set;}
-Tables                     Property   System.Collections.Generic.List`1[[SqlQueryTable, PowerShell Class Assembly, Version=1.0.0.1, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e Tables {get;set;}
-
 ```
 
-## Summary
+#### Other Helper Functions in the SqlQueryClass Module
+
+```powershell
+Get-Command -Module SqlQueryClass -Syntax
+
+Dismount-Database [[-connectionString] <Object>] [[-Database] <Object>] [-Quiet]
+Get-Database [[-connectionString] <Object>] [[-query] <Object>] [-Quiet]
+Get-DatabaseTable [[-connectionString] <Object>] [[-query] <Object>] [-Quiet]
+Invoke-DatabaseNonQuery [[-connectionString] <Object>] [[-NonQuery] <Object>] [-Quiet]
+Invoke-DatabaseQuery [[-connectionString] <Object>] [[-query] <Object>] [-Quiet]
+Mount-Database [[-connectionString] <Object>] [[-Database] <Object>] [[-DatabaseFilePath] <Object>] [-Quiet]
+New-SqlQueryDataSet [[-SQLServer] <string>] [[-Database] <string>] [[-ConnectionString] <string>] [[-Query] <string>] [[-TableName] <string>] [[-DisplayResults] <bool>] [<CommonParameters>]
+```
+
+## Summary of Classes
 
 An instance of Class [SqlQueryDataSet] is used to maintain the DataBase configuration and connection details.
 
@@ -124,7 +195,6 @@ class SqlQueryDataSet {
     [int]$CommandTimeout = 600
     [string]$ConnectionString
     [object]$SQLConnection
-    hidden [object]$SQLReader
     [int]$TableIndex = 0
     [System.Collections.Generic.List[SqlQueryTable]]$Tables
     [System.Collections.Hashtable]$TableNames = @{}
@@ -164,25 +234,39 @@ class SqlQueryTable {
 }
 ```
 
-The ResultsType property defines how the query will be executed and the DataType for the result. ResultType values are: DataTable; DataAdapter; DataSet; SqlReader; and NonQuery.
+The ResultsType property defines how the query will be executed and the DataType for the result. ResultType values are: DataTable; DataAdapter; DataSet; DataRows; and NonQuery.
+
+ResultType of DataTable and DataRows use the [System.Data.SqlClient.SqlDataReader] approach to load() a DataTable object and return [SqlQueryTable]$table.Result as [System.Data.DataTable] or [Array][System.Data.DataRow]
+
+ResultType of DataAdapter and DataSet returns [SqlQueryTable]$table.Result as [System.Data.DataSet] and retains the SqlDataAdapter used in [SqlQueryTable]$table.SqlDataAdapter
+
+### [SqlQueryDataSet] and [SqlQueryDataSetParms] Class Methods and Properties
+
+There are more then 27+ methods and are best listed by running the following with Database connection and Query settings:
+
+```powershell
+$testQuery = New-SqlQueryDataSet [[-SQLServer] <string>] [[-Database] <string>] [[-ConnectionString] <string>] [[-Query] <string>] [[-TableName] <string>] [[-DisplayResults] <bool>] [<CommonParameters>]
+$testquery | GM
+$testquery.Tables | GM
+```
 
 ### New-SqlQueryDataSet Examples
 
+See .\tests\New-SqlQueryDataSets.tests.ps1 file for a fully set of usage examples used in the Pester Tests
+
+Parameters are all optional but most of the properties will still need to be configured through the Class instance before an execute query is called.
+
+The most common usage examples are:
+
 ```powershell
-# Create an instance of the [SqlQueryDataSet] class
-$testQuery = New-SqlQueryDataSet
+# Using a connection string, defining a query, and setting TableName
+$result = New-SqlQueryDataSet -ConnectionString "Server=myServer;Database=myDB;User Id=myUser;Password=myPass;" -Query "SELECT * FROM INFORMATION_SCHEMA.COLUMNS" -TableName TableSchema
+
+# Create an instance of the [SqlQueryDataSet] class with Database configuration and defining the SQL Query
+$testQuery = New-SqlQueryDataSet -SQLServer "myServer" -Database "myDB" -Query "SELECT * FROM myTable" -TableName TableSchema
 
 # Create an instance of the [SqlQueryDataSet] class with Database configuration, ConnectionString is autogenerated
 $testQuery = New-SqlQueryDataSet -SQLServer "myServer" -Database "myDB"
-
-# Create an instance of the [SqlQueryDataSet] class with Database configuration and defining the SQL Query
-$testQuery = New-SqlQueryDataSet -SQLServer "myServer" -Database "myDB" -Query "SELECT * FROM myTable"
-
-# Using a connection string, defining a query, and setting DisplayResults to False
-$result = New-SqlQueryDataSet -ConnectionString "Server=myServer;Database=myDB;User Id=myUser;Password=myPass;" -Query "SELECT * FROM myTable" -DisplayResults $false
-
-# Using a connection string, defining a query, and setting TableName
-$result = New-SqlQueryDataSet -ConnectionString "Server=myServer;Database=myDB;User Id=myUser;Password=myPass;" -Query "SELECT * FROM INFORMATION_SCHEMA.COLUMNS" -TableName TableSchema
 ```
 
 ### SQL Express Example
@@ -190,7 +274,7 @@ $result = New-SqlQueryDataSet -ConnectionString "Server=myServer;Database=myDB;U
 ```powershell
 # Configure Database settings for connection
 $SqlServer = '(localdb)\MSSQLLocalDB'
-$DatabaseName = 'F:\DATA\BILLS\PSSCRIPTS\SCANMYBILLS\DATABASE1.MDF'
+$DatabaseName = 'C:\Git\SqlQueryClass\tests\TestDatabase1.mdf'
 $ConnectionString = "Data Source={0};AttachDbFilename={1};Integrated Security=True" -f $SqlServer, $DatabaseName
 
 # Create a new instance of SqlQueryDataSet
@@ -250,7 +334,7 @@ Query          : SELECT * FROM INFORMATION_SCHEMA.TABLES
 SQLCommand     : System.Data.SqlClient.SqlCommand
 SqlDataAdapter :
 ResultType     : DataTable
-Result         : {Document, Category, Entity, DocName�}
+Result         : {Document, Category, Entity, DocName...}
 isDirty        : False
 QueryFile      :
 Parent         : SqlQueryDataSet
@@ -281,40 +365,53 @@ The the following ModuleTools CmdLets used in the build and maintenance process.
 - To skip a test, add `-skip` in describe block of the Pester *.test.ps1 file to skip.
 
 ### Folder and Files
-
+ 
+```powershell
 .\SQLQUERYCLASS
-�   .gitignore
-�   GitHub_Action_Docs.md
-�   LICENSE
-�   project.json
-�   README.md
-�
-+---.vscode
-�       settings.json
-�
-+---archive
-�
-+---dist
-�   +---SqlQueryClass
-�           about_SqlQueryClass.help.txt
-�           SqlQueryClass.psd1
-�           SqlQueryClass.psm1
-�
-+---src
-�   +---private
-�   �       SqlQueryClass.ps1
-�   �
-�   +---public
-�   �       about_SqlQueryClass.help.txt
-�   �       New-SqlQueryDataSet.ps1
-�   �
-�   +---resources
-�           about_SqlQueryClass.help.txt
-�
-+---tests
+│   .gitignore
+│   GitHub_Action_Docs.md
+│   LICENSE
+│   project.json
+│   README.md
+│
+├───.vscode
+│       settings.json
+│
+├───archive
+│
+├───dist
+│   │   TestResults.xml
+│   │
+│   └───SqlQueryClass
+│       │   SqlQueryClass.psd1
+│       │   SqlQueryClass.psm1
+│       │   about_SqlQueryClass.help.txt
+│               
+├───src
+│   ├───private
+│   │       SqlQueryClass.ps1
+│   │
+│   ├───public
+│   │       Dismount-Database.ps1
+│   │       Get-Database.ps1
+│   │       Get-DatabaseTable.ps1
+│   │       Invoke-DatabaseNonQuery.ps1
+│   │       Invoke-DatabaseQuery.ps1
+│   │       Mount-Database.ps1
+│   │       New-SqlQueryDataSet.ps1
+│   │
+│   └───resources
+│           about_SqlQueryClass.help.txt
+│
+└───tests
         Module.Tests.ps1
+        New-SqlQueryDataSets.tests.ps1
         OutputFiles.Tests.ps1
         ScriptAnalyzer.Tests.ps1
+        TestDatabase1.mdf
+        TestDatabase1.parameters.psd1
+        TestDatabase1_log.ldf
+```
 
 All files and folders in the `src` folder, will be published Module.
 
@@ -345,7 +442,7 @@ Generated module is stored in `dist\SqlQueryClass` folder, you can easily import
 
   - All functions in the `public` folder are exported during the module build.
   - All functions in the `private` folder are accessible internally within the module but are not exposed outside the module.
-  - All files and folder contained in the `resources` folder will be `dist\SqlQueryClass` folder.
+  - All files and folder contained in the `resources` folder will be published to the `dist\SqlQueryClass` folder.
 
 ### Tests Folder
 
@@ -353,10 +450,13 @@ If you want to run any `pester` tests, keep them in `tests` folder and named *.t
 
 Run `Invoke-MTTest` to execute the tests.
 
-## How the `SqlQueryClass` Module Works
-
-SqlQueryClass.ps1
-
+- .\tests\New-SqlQueryDataSets.tests.ps1 -- Full set of usage example Tests. Good Resource for usage examples
+- .\tests\Module.Tests.ps1 -- General Module Control to verify the module imports correctly
+- .\tests\OutputFiles.Tests.ps1 -- Module and Manifest testing to verify output files are readable
+- .\tests\ScriptAnalyzer.Tests.ps1 -- Code Quality Checks to verify PowerShell syntax and best practices
+- .\tests\TestDatabase1.parameters.psd1 -- PowerShell Data File of configuration settings used in New-SqlQueryDataSets.tests.ps1
+- .\tests\TestDatabase1.mdf -- Sample SQL Express Database File with samples data used in New-SqlQueryDataSets.tests.ps1
+- .\tests\TestDatabase1_log.ldf -- Created when using TestDatabase1.mdf
 
 ## Contributing
 
@@ -371,8 +471,11 @@ This project is licensed under the MIT License. See the LICENSE file for details
 [WorkFlowStatus]: https://img.shields.io/github/actions/workflow/status/BrooksV/SqlQueryClass/Tests.yml
 
 ## SEE ALSO
-    New-SqlQueryDataSet
-    Get-Help
+
+```powershell
+    Get-Help -Name New-SqlQueryDataSet
+```powershell
 
 ## KEYWORDS
+
     SQL, Database, Query, SqlQueryDataSet
