@@ -444,15 +444,13 @@ git checkout -b features/reverse-parameters-for-AddQuery
 git checkout features/reverse-parameters-for-AddQuery
 git status
 
-# Rename Branch
-git branch -m features/database-table-access
-
 # Delete old branch from remote repository
-git push origin --delete features/readme-updates
+# git push origin --delete features/reverse-parameters-for-AddQuery
 
 # Push the renamed branch and set upstream:
-git push --set-upstream origin features/database-table-access
-git push origin features/database-table-access
+git push --set-upstream origin features/reverse-parameters-for-AddQuery
+git push origin features/reverse-parameters-for-AddQuery
+
 ```
 
 ```powershell

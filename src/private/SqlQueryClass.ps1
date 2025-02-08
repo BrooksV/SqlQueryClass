@@ -74,7 +74,7 @@ $TestQuery.Database = $DatabaseName
 $TestQuery.ConnectionString = $ConnectionString
 $TestQuery.DisplayResults = $true
 
-$TestQuery.AddQuery("SELECT @@VERSION FROM INFORMATION_SCHEMA.TABLES", 'Version')
+$TestQuery.AddQuery('Version', "SELECT @@VERSION FROM INFORMATION_SCHEMA.TABLES")
 $TestQuery.Tables[0].Query = "SELECT TABLE_NAME, @@VERSION FROM INFORMATION_SCHEMA.TABLES"
 $TestQuery.Execute()
 
@@ -104,7 +104,7 @@ $TestQuery
 $TestQuery
 
 
-AddQuery                   Method     int AddQuery(string Query), int AddQuery(string Query, string TableName)
+AddQuery                   Method     int AddQuery(string Query), int AddQuery(string TableName, string Query)
 BuildOleDbConnectionString Method     string BuildOleDbConnectionString()
 Clear                      Method     void Clear()
 CloseConnection            Method     void CloseConnection()
@@ -246,7 +246,7 @@ PS C:\Git\SqlQueryEditor> $TestQuery | GM
 
 Name                       MemberType Definition
 ----                       ---------- ----------
-AddQuery                   Method     int AddQuery(string Query), int AddQuery(string Query, string TableName)
+AddQuery                   Method     int AddQuery(string Query), int AddQuery(string TableName, string Query)
 BuildOleDbConnectionString Method     string BuildOleDbConnectionString()
 Clear                      Method     void Clear()
 CloseConnection            Method     void CloseConnection()
@@ -368,9 +368,9 @@ class SqlQueryDataSet {
 
     # Methods to Add New Table for Query and Results
     [int] AddQuery([String]$Query) {
-        Return $This.AddQuery($Query, [String]::Empty)
+        Return $This.AddQuery([String]::Empty, $Query)
     }
-    [int] AddQuery([String]$Query, [String]$TableName) {
+    [int] AddQuery([String]$TableName, [String]$Query) {
         If (-not $this.Tables) {
             $this.Tables = [System.Collections.Generic.List[SqlQueryTable]]::new()
         }
@@ -667,7 +667,7 @@ class SqlQueryDataSet {
 
     [Object] ExecuteQuery([String]$TableName, [String]$SqlQuery) {
         If ($SqlQuery) {
-            $This.TableIndex = $This.AddQuery($SqlQuery, $TableName)
+            $This.TableIndex = $This.AddQuery($TableName, $SqlQuery)
         }
         $table = $This.Tables[$This.TableIndex]
         $table.ResultType = [ResultType]::DataTable

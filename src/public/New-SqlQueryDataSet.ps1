@@ -92,7 +92,7 @@ function New-SqlQueryDataSet {
     }
     if (-not [string]::IsNullOrEmpty($Query)) {
         if (-not [string]::IsNullOrEmpty($TableName)) {
-            [void]$instance.AddQuery($Query, $TableName)
+            [void]$instance.AddQuery($TableName, $Query)
         } else {
             [void]$instance.AddQuery($Query)
         }
