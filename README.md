@@ -156,7 +156,7 @@ These steps will ensure your changes are integrated into the main branch and you
 ```powershell
 $data = Get-MTProjectInfo
 $ApiKey = "your-api-key-here"
-Publish-Module -Path $data.OutputModuleDir -NuGetApiKey $ApiKey -Repository PowerShellGallery
+Publish-Module -Path $data.OutputModuleDir -NuGetApiKey $ApiKey -Repository PSGallery
 ```
 
 ### New-SqlQueryDataSet Helper Function to Create Class Instance
