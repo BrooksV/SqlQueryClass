@@ -23,6 +23,9 @@ jobs:
       - name: 📦 Install ModuleTools module form PSGallery
         run: Install-PSResource -Repository PSGallery -Name ModuleTools -TrustRepository
 
+      - name: 📦 Install MarkdownPS module form PSGallery
+        run: Install-PSResource -Repository PSGallery -Name MarkdownPS -TrustRepository
+
       - name: 📦 Install SqlQueryClass module form PSGallery
         run: Install-PSResource -Repository PSGallery -Name SqlQueryClass -TrustRepository
 
