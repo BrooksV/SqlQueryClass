@@ -4,7 +4,7 @@
 #>
 
 
-<# #>
+<# # >
 # $TestQuery.ExecuteQuery('DBTables', $Query)
 # enum ResultType { DataTable; DataRows; DataAdapter; DataSet; NonQuery; }
 
@@ -102,6 +102,10 @@ $eol = [System.Environment]::NewLine
 . "C:\CMD\PowerShell\MarkDown\ConvertTo-Markdown.ps1"
 #>
 
+#========================================================
+# Readme MarkDown Generation Starts Here !!!
+#========================================================
+
 # Reset the Class Report as MarkDown file
 $fsoClassDoc = [System.IO.FileInfo]("C:\Git\SqlQueryClass\archive\ModuleDoc.md")
 If ($fsoClassDoc.Exists) { $fsoClassDoc.Delete() }
@@ -115,27 +119,22 @@ $githubAccount = $projectUri.Split('/')
 $ownerId = $githubAccount[-2]
 $ProjectName = $githubAccount[-1] # $projectData.ProjectName
 $githubAccount = $githubAccount[0..($githubAccount.Count -2)] -join '/'
+$ProjectRoot = $projectData.ProjectRoot
 
-# [void]$sb.AppendLine("# ``$ProjectName`` Module" + $eol)
-# [void]$sb.AppendLine($projectData.Description + $eol)
+[void]$sb.AppendLine("# ``$ProjectName``" + $eol)
+[void]$sb.AppendLine($projectData.Description + $eol)
 
-# Module Details
+## Module Details
 [void]$sb.AppendLine(@"
-<div align="center" width="100%">
-    <!--
-    -->
-    <h1>$ProjectName</h1>
-    <p><b>$($projectData.Description)</b></p><p>
-    <a target="_blank" href="$githubAccount"><img src="https://img.shields.io/badge/maintainer-$ownerId-orange" /></a>
-    <a target="_blank" href="$projectUri/graphs/contributors/"><img src="https://img.shields.io/github/contributors/$ownerId/$ProjectName.svg" /></a><br>
-    <a target="_blank" href="$projectUri/commits/"><img src="https://img.shields.io/github/last-commit/$ownerId/$ProjectName.svg" /></a>
-    <a target="_blank" href="$projectUri/issues/"><img src="https://img.shields.io/github/issues/$ownerId/$ProjectName.svg" /></a>
-    <a target="_blank" href="$projectUri/issues?q=is%3Aissue+is%3Aclosed"><img src="https://img.shields.io/github/issues-closed/$ownerId/$ProjectName.svg" /></a><br>
-</div>
+[![maintainer](https://img.shields.io/badge/maintainer-$ownerId-orange)]($githubAccount)
+[![contributors](https://img.shields.io/github/contributors/BrooksV/$ProjectName.svg)]($projectUri/graphs/contributors/)
+[![last-commit](https://img.shields.io/github/last-commit/BrooksV/$ProjectName.svg)]($projectUri/commits/)
+[![issues](https://img.shields.io/github/issues/BrooksV/$ProjectName.svg)]($projectUri/issues/)
+[![issues-closed](https://img.shields.io/github/issues-closed/BrooksV/$ProjectName.svg)]($projectUri/issues?q=is%3Aissue+is%3Aclosed)
 "@ + $eol) 
 
 [void]$sb.AppendLine("# ``$($projectData.ProjectName)`` Module Details" + $eol)
-[void]$sb.Append(((Get-Module -Name "$($projectData.ProjectName)") | Select-Object -Property Name, Version, @{L='PS Compatiblity'; E={$_.PowerShellHostVersion}}, @{L='Project Uri (GitHub)';E={('[{0}]({0})' -f $_.PrivateData.PSData.ProjectUri)}} | ConvertTo-Markdown | Out-String))
+[void]$sb.Append(((Get-Module -Name "$($projectData.ProjectName)") | Select-Object -Property Name, Version, @{L='PS Compatiblity'; E={$_.PowerShellHostVersion}}, @{L='Project Uri (GitHub)';E={('[{0}]({0})' -f $_.PrivateData.PSData.ProjectUri)}} | ConvertTo-Markdown | Out-String) +$eol)
 
 # Module Documentation Links / Uri
 $docLinks = ((Get-Module -Name "$($projectData.ProjectName)").PSObject.Properties.Where({-not [string]::IsNullOrEmpty($_.Value) -and $_.Name -eq 'PrivateData'}).Value.PSData).GetEnumerator().Where({$_.Name -like '*Uri'}) |
@@ -150,6 +149,7 @@ $docLinks = ((Get-Module -Name "$($projectData.ProjectName)").PSObject.Propertie
     Select-Object -Property @{L='Link'; E={$_.Name}}, @{L='Uri'; E={$_.Value}} |
     ConvertTo-Markdown | Out-File -FilePath $fsoClassDoc.FullName -Encoding utf8 -Width 999 -Append
 #>
+
 [void]$sb.AppendLine("## Module Links to License and GitHub Project" + $eol)
 [void]$sb.AppendLine(($docLinks.ForEach({"`n- [{0}]({1})" -f $_.DocLink, $_.Uri}).Trim() | Out-String))
 
@@ -166,9 +166,10 @@ $docLinks = ((Get-Module -Name "$($projectData.ProjectName)").PSObject.Propertie
 # (Get-Module -Name "$($projectData.ProjectName)").PSObject.Properties.Where({-not [string]::IsNullOrEmpty($_.Value) -and $_.Name -eq 'PrivateData'}).Value.PSData | FT -AutoSize -Force -Wrap
 [void]$sb.AppendLine("## ``$($projectData.ProjectName)`` Module Exported Functions" + $eol)
 [void]$sb.AppendLine($psCodeStart)
-[void]$sb.AppendLine("Get-Command -Module `"$($projectData.ProjectName)`" -Syntax")
+[void]$sb.AppendLine("Get-Command -Module `"$($projectData.ProjectName)`" -Syntax"+ $eol)
+# [void]$sb.AppendLine((((Get-Command -Module "$($projectData.ProjectName)" -Syntax) -split [System.Environment]::NewLine).Where({-not [String]::IsNullOrWhiteSpace($_)}).ForEach({'- {0}' -f $_}) | Out-String).Replace('[<CommonParameters>]',''))
+[void]$sb.AppendLine((((Get-Command -Module "$($projectData.ProjectName)" -Syntax) -split [System.Environment]::NewLine).Where({-not [String]::IsNullOrWhiteSpace($_)}).ForEach({'- {0}' -f $_}) | Out-String).TrimEnd())
 [void]$sb.AppendLine($psCodeEnd + $eol)
-[void]$sb.AppendLine((((Get-Command -Module "$($projectData.ProjectName)" -Syntax) -split [System.Environment]::NewLine).Where({-not [String]::IsNullOrWhiteSpace($_) -and $_ -notlike '*CommonParameters*'}).ForEach({'- {0}' -f $_}) | Out-String))
 
 <#
 Common Help Metadata Fields Descriptions
@@ -238,17 +239,17 @@ $Lines = ForEach($foo in (Get-Command -Module "$($projectData.ProjectName)").Nam
             }
         }
     }
-    $psCodeEnd
+    $psCodeEnd + $eol
 }
 [void]$sb.AppendLine(($Lines | Out-String).TrimEnd() + $eol)
 
 # Class Details
 [void]$sb.AppendLine("## [$($TestQuery.GetType().Name)] Parent Class Details" + $eol)
 [void]$sb.AppendLine("Instances of [$($TestQuery.GetType().Name)] Parent Class are created using the New-SqlQueryDataSet() helper CmdLet. The object returned id of type [$($TestQuery.GetType().Name)]. The properties and methods are used to manage and configure database information and connections, manages creation of the Child Class, executes queries, and saves the results. Instances of Child Classes are collected in the Tables property of the Parent Class. Tables is a collecton of [$($TestQuery.Tables[0].GetType().Name)] objects. One is created for every unique query that was added or executed." + $eol)
-[void]$sb.AppendLine("Each instanace of the [$($TestQuery.Tables[0].GetType().Name)] Class, holds the Query configuration and execution results." + $eol)
+[void]$sb.AppendLine("Each instance of the [$($TestQuery.Tables[0].GetType().Name)] Class, holds the Query configuration and execution results." + $eol)
 [void]$sb.AppendLine("For technical information, See" + $eol)
 [void]$sb.AppendLine("- Get-Help New-SqlQueryDataSet -Full")
-[void]$sb.AppendLine("- $($ProjectRoot)\tests\New-SqlQueryDataSets.tests.ps1 has full usage examples used to validate usage" + $eol)
+[void]$sb.AppendLine("- New-SqlQueryDataSets.tests.ps1 in the Tests ($ProjectRoot\tests\) folder has full usage examples used to validate usage" + $eol)
 
 # Parent Class Properties
 [void]$sb.AppendLine("### Class [$($TestQuery.GetType().Name)] Properties" + $eol)
