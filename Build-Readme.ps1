@@ -4,7 +4,7 @@
 #>
 
 
-<# # >
+<# #>
 # $TestQuery.ExecuteQuery('DBTables', $Query)
 # enum ResultType { DataTable; DataRows; DataAdapter; DataSet; NonQuery; }
 
@@ -87,11 +87,11 @@ GetHashCode
 # Initialize the Class Method and Property Data to document
 $ClassData = $TestQuery | Get-ClassMemberData
 If ([String]::IsNullOrEmpty($ClassData)) {
-    Throw "Get-ClassMemberData() Failed to retreive Class Members for `$TestQuery"
+    Throw "Get-ClassMemberData() Failed to retrieve Class Members for `$TestQuery"
 }
 $ChildClassData = $TestQuery.Tables[0] | Get-ClassMemberData
 If ([String]::IsNullOrEmpty($ChildClassData)) {
-    Throw "Get-ClassMemberData() Failed to retreive Class Members for `$TestQuery.Tables[0]"
+    Throw "Get-ClassMemberData() Failed to retrieve Class Members for `$TestQuery.Tables[0]"
 }
 
 $psCodeStart = '```powershell'
@@ -110,7 +110,7 @@ $eol = [System.Environment]::NewLine
 $fsoClassDoc = [System.IO.FileInfo]("C:\Git\SqlQueryClass\archive\ModuleDoc.md")
 If ($fsoClassDoc.Exists) { $fsoClassDoc.Delete() }
 
-# Create String Bulder for Assembling the MarkDown output
+# Create String Builder for Assembling the MarkDown output
 $sb = [System.Text.StringBuilder]::new()
 
 # Configure Project and User specific settings used to keep the README.md file generator as generic as possible
@@ -124,17 +124,13 @@ $ProjectRoot = $projectData.ProjectRoot
 [void]$sb.AppendLine("# ``$ProjectName``" + $eol)
 [void]$sb.AppendLine($projectData.Description + $eol)
 
-## Module Details
-[void]$sb.AppendLine(@"
-[![maintainer](https://img.shields.io/badge/maintainer-$ownerId-orange)]($githubAccount)
-[![contributors](https://img.shields.io/github/contributors/BrooksV/$ProjectName.svg)]($projectUri/graphs/contributors/)
-[![last-commit](https://img.shields.io/github/last-commit/BrooksV/$ProjectName.svg)]($projectUri/commits/)
-[![issues](https://img.shields.io/github/issues/BrooksV/$ProjectName.svg)]($projectUri/issues/)
-[![issues-closed](https://img.shields.io/github/issues-closed/BrooksV/$ProjectName.svg)]($projectUri/issues?q=is%3Aissue+is%3Aclosed)
-"@ + $eol) 
+# Badges
+# To use a different label
+# [BadgeIOCount]: https://img.shields.io/powershellgallery/dt/SqlQueryClass?label=SqlQueryClass%40PowerShell%20Gallery
+# ![Coverage](https://img.shields.io/codecov/c/github/$ownerId/$ProjectName)
 
-[void]$sb.AppendLine("# ``$($projectData.ProjectName)`` Module Details" + $eol)
-[void]$sb.Append(((Get-Module -Name "$($projectData.ProjectName)") | Select-Object -Property Name, Version, @{L='PS Compatiblity'; E={$_.PowerShellHostVersion}}, @{L='Project Uri (GitHub)';E={('[{0}]({0})' -f $_.PrivateData.PSData.ProjectUri)}} | ConvertTo-Markdown | Out-String) +$eol)
+[void]$sb.AppendLine("## ``$($projectData.ProjectName)`` Module and Status Details" + $eol)
+[void]$sb.Append(((Get-Module -Name "$($projectData.ProjectName)") | Select-Object -Property Name, Version, @{L='PS Compatibility'; E={$_.PowerShellHostVersion}}, @{L='Project Uri (GitHub)';E={('[{0}]({0})' -f $_.PrivateData.PSData.ProjectUri)}} | ConvertTo-Markdown | Out-String) +$eol)
 
 # Module Documentation Links / Uri
 $docLinks = ((Get-Module -Name "$($projectData.ProjectName)").PSObject.Properties.Where({-not [string]::IsNullOrEmpty($_.Value) -and $_.Name -eq 'PrivateData'}).Value.PSData).GetEnumerator().Where({$_.Name -like '*Uri'}) |
@@ -150,13 +146,179 @@ $docLinks = ((Get-Module -Name "$($projectData.ProjectName)").PSObject.Propertie
     ConvertTo-Markdown | Out-File -FilePath $fsoClassDoc.FullName -Encoding utf8 -Width 999 -Append
 #>
 
-[void]$sb.AppendLine("## Module Links to License and GitHub Project" + $eol)
+[void]$sb.AppendLine(@"
+[PSGalleryLink]: https://www.powershellgallery.com/packages/$ProjectName/
+[BadgeIOCount]: https://img.shields.io/powershellgallery/dt/$ProjectName.svg?label=downoads%20$ProjectName%40PSGallery
+[WorkFlowStatus]: https://img.shields.io/github/actions/workflow/status/$ownerId/$ProjectName/tests.yml?label=tests.yml%20build
+
+[![maintainer](https://img.shields.io/badge/maintainer-$ownerId-orange)]($githubAccount)
+[![License](https://img.shields.io/github/license/$ownerId/$ProjectName)]($projectUri/blob/main/LICENSE)
+[![contributors](https://img.shields.io/github/contributors/$ownerId/$ProjectName.svg)]($projectUri/graphs/contributors/)
+[![last-commit](https://img.shields.io/github/last-commit/$ownerId/$ProjectName.svg)]($projectUri/commits/)
+[![issues](https://img.shields.io/github/issues/$ownerId/$ProjectName.svg)]($projectUri/issues/)
+[![issues-closed](https://img.shields.io/github/issues-closed/$ownerId/$ProjectName.svg)]($projectUri/issues?q=is%3Aissue+is%3Aclosed)
+
+[![GitHub stars](https://img.shields.io/github/stars/$ownerId/$ProjectName.svg)]($projectUri/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/$ownerId/$ProjectName.svg)]($projectUri/network/members)
+[![GitHub pull requests](https://img.shields.io/github/issues-pr/$ownerId/$ProjectName.svg)]($projectUri/pulls)
+
+### Build and Release Statistics
+
+[![$ProjectName@PowerShell Gallery][BadgeIOCount]][PSGalleryLink]
+![WorkFlow Status][WorkFlowStatus]
+![Build Status](https://img.shields.io/github/actions/workflow/status/$ownerId/$ProjectName/ci.yml?label=ci.yml%20build)
+![Version](https://img.shields.io/github/v/release/$ownerId/$ProjectName.svg?label=version)
+
+![GitHub All Releases](https://img.shields.io/github/downloads/$ownerId/$ProjectName/total.svg?label=release%20dl%20all%40GitHub)
+![GitHub release (latest by date)](https://img.shields.io/github/downloads/$ownerId/$ProjectName/latest/total.svg?label=release%20dl%20by%20date%40GitHub)
+![Downloads](https://img.shields.io/github/downloads/$ownerId/$ProjectName/total.svg?label=total%20release%20dl%40GitHub)
+"@ + $eol) 
+
+[void]$sb.AppendLine("### Module Links to License and GitHub Project" + $eol)
 [void]$sb.AppendLine(($docLinks.ForEach({"`n- [{0}]({1})" -f $_.DocLink, $_.Uri}).Trim() | Out-String))
 
 # Module Tags
 # (Get-Module -Name "$($projectData.ProjectName)").PSObject.Properties.Where({-not [string]::IsNullOrEmpty($_.Value) -and $_.Name -eq 'PrivateData'}).Value.PSData.Tags| Select-Object -Property @{L='Tags'; E={$_}} | ConvertTo-Markdown
-[void]$sb.AppendLine("## Module Tags" + $eol)
+[void]$sb.AppendLine("### Module Tags" + $eol)
 [void]$sb.AppendLine("[$((Get-Module -Name "$($projectData.ProjectName)").PSObject.Properties.Where({-not [string]::IsNullOrEmpty($_.Value) -and $_.Name -eq 'PrivateData'}).Value.PSData.Tags -join '], [')]" + $eol)
+
+# Module Installation
+[void]$sb.AppendLine("## Installation" + $eol)
+[void]$sb.AppendLine(@"
+$psCodeStart
+Install-Module -Name $($ProjectName) -Repository PSGallery -Scope CurrentUser
+$psCodeEnd
+
+To load a local build of the module, use `Import-Module` as follows:
+
+$psCodeStart
+Import-Module -Name "$($projectData.ManifestFilePSD1)" -Force -verbose
+$psCodeEnd
+
+### Requirements
+
+- Tested with PowerShell 5.1 and 7.5x
+- No known dependencies for usage
+- VS Code and clone [Brooks Vaughn's $ProjectName]($projectUri) Repository
+- Module build process uses [Manjunath Beli's](https://github.com/belibug) [ModuleTools](https://github.com/belibug) module.
+
+### ToDo
+
+- [ ] Seek peer review and comments
+- [ ] Integrate feedback
+- [ ] Improve Documentation
+- [ ] Complete Build-Readme.ps1 script that generates the README.md file
+
+## How Build ``$ProjectName`` Module
+
+### Setup
+
+- Uses SQL Express but should work with other SQL Databases with proper connection strings and credentials
+- Requires VS Code
+- For Contributors, Fork the [$ProjectName]($projectUri) repository
+- Clone the repository or fork to local pc. I like using c:\git as my local repository folder. Subfolder `$ProjectName` will be created with the GiHib repository contents
+- Install [Manjunath Beli's ModuleTools](https://github.com/belibug/ModuleTools) module as the module build process uses ModuleTools
+- - Find-Module -Name ModuleTools | Install-Module -Scope CurrentUser -Verbose
+- Note that a sample SQL Express database file (.\tests\TestDatabase1.mdf) is included for pester tests. The database configuration is set in .\tests\TestDatabase1.parameters.psd1
+
+#### Source Files used in the Module
+
+- Public functions that are exported, are separate files in the .\src\public folder.
+- Private functions that are local to the Module, are separate files in the .\src\private folder.
+- - Class Definitions and Enums are not accessible outside of the Module and cannot be accessed directly like Public Functions are. This is a PowerShell limitation.
+- - - Classes [SqlQueryDataSet] and [SqlQueryDataSetParms] and enum ResultType used in the Module are defined in file .\src\private\$ProjectName.ps1 file. The classes have properties and methods used to maintain a Database connections and result sets making it useful WPF Data binding.
+- Resources are files and folders in the .\src\resources folder that needs to be included with the Manifest and Module
+
+#### ``$ProjectName`` Module Build Process
+
+- Create a local branch for your changes
+- - Use descriptive name that reflects the type of changes for branch for example features/database-table-access
+- Update the build version using Update-MTModuleVersion (Find-Module -Name ModuleTools)
+- Commit your changes to the branch
+- Run the Pester Teats using Invoke-MTTest (Find-Module -Name ModuleTools)
+- Build the Module output using Invoke-MTBuild -Verbose (Find-Module -Name ModuleTools)
+- - Outputs to the .\dist\$ProjectName folder
+- - Combines the file contents of the files in Public and Private folder into .\dist\$ProjectName\$ProjectName.psd1 and exports the Public Functions
+- - Generates the .\dist\$ProjectName\$ProjectName.psd1 Manifest file from the settings in .\project.json
+- - Resources (.\src\resources) folder content is copied to .\dist\$ProjectName folder
+- Run the Pester Teats using Invoke-MTTest (Find-Module -Name ModuleTools)
+- Make corrections, repeat the build process
+- For Contributors
+- - Create an Issue if one does not exist that addresses the proposed changes
+- - Upstream your branch
+- - Create a Pull request
+
+#### Publishing ``$ProjectName`` Module to GitHub
+
+Stage and Commit Your Changes
+
+$psCodeStart
+git add .
+git commit -m "Implemented database and table access functions"
+$psCodeEnd
+
+Update remote repository with branch changes
+
+$psCodeStart
+# List status of remote repository
+git branch -r
+# Create Branch on remote repository if needed
+# git push --set-upstream origin features/database-table-access
+# Push branch changes to remote branch in repository
+git push origin features/database-table-access
+$psCodeEnd
+
+Create a Pull Request on remote repository
+
+- Go to [$ProjectName GitHub repository]($projectUri)
+- Click on "Compare & pull request" for your branch
+- Provide a meaningful title and description for the PR
+- Select the base branch (main) to merge into
+- Click "Create pull request"
+
+Code Review and Feedback
+
+- Engage with Repository Owner or collaborators to review the PR
+- Address any feedback or requested changes by making additional commits to your branch and pushing them to the remote branch
+- Ensure the PR passes any automated tests or checks
+
+Merge the Pull Request
+
+- Once the PR is approved and all checks pass, you can merge it into the main branch
+- You can either use the "Merge pull request" button on GitHub or merge it locally and push the changes
+
+Cleanup
+
+- After merging, you can delete the feature branch from the remote repository to keep it clean
+
+$psCodeStart
+git push origin --delete features/database-table-access
+$psCodeEnd
+
+- Optionally, delete the local branch
+
+$psCodeStart
+git branch -d features/database-table-access
+$psCodeEnd
+
+These steps will ensure your changes are integrated into the main branch and your repository remains organized.
+
+#### Publishing ``$ProjectName`` Module to PowerShell Gallery
+
+$psCodeStart
+`$data = Get-MTProjectInfo
+`$ApiKey = "your-api-key-here"
+Publish-Module -Path `$data.OutputModuleDir -NuGetApiKey `$ApiKey -Repository PSGallery
+$psCodeEnd
+
+### New-SqlQueryDataSet Helper Function to Create Class Instance
+
+The main cmdlet provided by this module is New-SqlQueryDataSet, which returns an object instance of [SqlQueryDataSet] class. Note that all the parameters are optional.
+
+$psCodeStart
+`$testQuery = New-SqlQueryDataSet [[-SQLServer] <string>] [[-Database] <string>] [[-ConnectionString] <string>] [[-Query] <string>] [[-TableName] <string>] [[-DisplayResults] <bool>] [<CommonParameters>]
+$psCodeEnd
+"@ + $eol) 
 
 # Module Exported Functions
 # (Get-Module -Name "$($projectData.ProjectName)") | FL
@@ -244,8 +406,8 @@ $Lines = ForEach($foo in (Get-Command -Module "$($projectData.ProjectName)").Nam
 [void]$sb.AppendLine(($Lines | Out-String).TrimEnd() + $eol)
 
 # Class Details
-[void]$sb.AppendLine("## [$($TestQuery.GetType().Name)] Parent Class Details" + $eol)
-[void]$sb.AppendLine("Instances of [$($TestQuery.GetType().Name)] Parent Class are created using the New-SqlQueryDataSet() helper CmdLet. The object returned id of type [$($TestQuery.GetType().Name)]. The properties and methods are used to manage and configure database information and connections, manages creation of the Child Class, executes queries, and saves the results. Instances of Child Classes are collected in the Tables property of the Parent Class. Tables is a collecton of [$($TestQuery.Tables[0].GetType().Name)] objects. One is created for every unique query that was added or executed." + $eol)
+[void]$sb.AppendLine("### [$($TestQuery.GetType().Name)] Parent Class Details" + $eol)
+[void]$sb.AppendLine("Instances of [$($TestQuery.GetType().Name)] Parent Class are created using the New-SqlQueryDataSet() helper CmdLet. The object returned id of type [$($TestQuery.GetType().Name)]. The properties and methods are used to manage and configure database information and connections, manages creation of the Child Class, executes queries, and saves the results. Instances of Child Classes are collected in the Tables property of the Parent Class. Tables is a collection of [$($TestQuery.Tables[0].GetType().Name)] objects. One is created for every unique query that was added or executed." + $eol)
 [void]$sb.AppendLine("Each instance of the [$($TestQuery.Tables[0].GetType().Name)] Class, holds the Query configuration and execution results." + $eol)
 [void]$sb.AppendLine("For technical information, See" + $eol)
 [void]$sb.AppendLine("- Get-Help New-SqlQueryDataSet -Full")

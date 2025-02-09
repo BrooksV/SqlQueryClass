@@ -55,8 +55,8 @@ Modules/
 *.old
 
 # SQL Server files
-*.mdf
-*.ldf
+# *.mdf # Allowed for including tests sample database
+# *.ldf # Allowed for including tests sample database
 *.ndf
 
 # VS Code files for those working on multiple tools
