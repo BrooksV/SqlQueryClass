@@ -47,8 +47,6 @@ Before you begin, ensure you have the following:
     Install-Module -Name SqlQueryClass -Repository PSGallery -Scope CurrentUser
     ```
 
-    <button onclick="copyToClipboard('#install-module')">Copy</button>
-
 2. Create a new WPF project in Visual Studio or Visual Studio Code.
 
 ## Creating the WPF Application
@@ -74,13 +72,38 @@ The [PowerShell Code-Behind Example](#powershell-code-behind-example) uses the X
 </Window>
 ```
 
-<button onclick="copyToClipboard('#xaml-layout')">Copy</button>
-
 ### PowerShell Code-Behind Example
 
 Code-Behind is a PowerShell example script `WPF_SqlQueryClassUsageExample.ps1` to demonstrate the usage of the SqlQueryClass module in a WPF application and how to bind data to the `DataGrid`.
 
 ```powershell
+
+# Define the module name
+$moduleName = "SqlQueryClass"
+
+# Check if the module is already installed
+$module = Get-Module -ListAvailable -Name $moduleName
+if ($null -eq $module) {
+    # Module is not installed, install it
+    Write-Output "Module '$moduleName' is not installed. Installing..."
+    Install-Module -Name $moduleName -Repository PSGallery -Scope CurrentUser
+
+    # Import the newly installed module
+    Write-Output "Importing module '$moduleName'..."
+    Import-Module -Name $moduleName
+} else {
+    # Module is already installed, import it
+    Write-Output "Module '$moduleName' is already installed. Importing..."
+    Import-Module -Name $moduleName
+}
+# Verify the module is imported
+if (Get-Module -Name $moduleName) {
+    Write-Output "Module '$moduleName' has been successfully imported."
+} else {
+    Write-Output "Failed to import module '$moduleName'."
+}
+
+# Add required .Net Assemblies required for WPF
 Add-Type -AssemblyName PresentationFramework
 
 # Define variable `$syncHash` for global use to store synchronized data and provide access to object data.
@@ -136,8 +159,6 @@ $quitButton.Add_Click({
 
 $window.ShowDialog() | Out-Null
 ```
-
-<button onclick="copyToClipboard('#powershell-code-behind')">Copy</button>
 
 ## Binding Data to the DataGrid
 
@@ -197,13 +218,3 @@ Common issues and solutions when working with the `SqlQueryClass` module and WPF
 ## Conclusion
 
 By following this guide, you can effectively bind SQL query results to a WPF `DataGrid` using the `SqlQueryClass` module. This enables seamless data manipulation and display within your WPF applications.
-
-<script>
-function copyToClipboard(element) {
-    var $temp = $("<input>");
-    $("body").append($temp);
-    $temp.val($(element).text()).select();
-    document.execCommand("copy");
-    $temp.remove();
-}
-</script>
