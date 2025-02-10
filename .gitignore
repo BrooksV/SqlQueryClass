@@ -12,7 +12,7 @@ run.ps1
 # Root Level Files
 *.readinglist.md
 *.cheatsheet.md
-*_cheatsheet.md
+*.cheatsheet.md.ps1
 reflog.md
 
 # Ignore build output directories

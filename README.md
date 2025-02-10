@@ -6,12 +6,13 @@ The SqlQueryClass module provides a set of functions and cmdlets for working wit
 
 Name          | Version | PS Compatibility | Project Uri (GitHub)
 ------------- | ------- | ---------------- | ------------------------------------------------------------------------------------
-SqlQueryClass | 0.1.2   | 5.1              | [https://github.com/BrooksV/SqlQueryClass](https://github.com/BrooksV/SqlQueryClass)
+SqlQueryClass | 0.1.3   | 5.1              | [https://github.com/BrooksV/SqlQueryClass](https://github.com/BrooksV/SqlQueryClass)
 
 [PSGalleryLink]: https://www.powershellgallery.com/packages/SqlQueryClass/
 [BadgeIOCount]: https://img.shields.io/powershellgallery/dt/SqlQueryClass.svg?label=downoads%20SqlQueryClass%40PSGallery
 [WorkFlowStatus]: https://img.shields.io/github/actions/workflow/status/BrooksV/SqlQueryClass/tests.yml?label=tests.yml%20build
 
+![PowerShell Gallery Version](https://img.shields.io/powershellgallery/v/SqlQueryClass.svg)
 [![maintainer](https://img.shields.io/badge/maintainer-BrooksV-orange)](https://github.com/BrooksV)
 [![License](https://img.shields.io/github/license/BrooksV/SqlQueryClass)](https://github.com/BrooksV/SqlQueryClass/blob/main/LICENSE)
 [![contributors](https://img.shields.io/github/contributors/BrooksV/SqlQueryClass.svg)](https://github.com/BrooksV/SqlQueryClass/graphs/contributors/)
