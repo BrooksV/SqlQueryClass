@@ -136,6 +136,8 @@ This includes details on:
 
 ### ToDo
 
+- [ ] Include database query checks to Pester Tests
+- [ ] Add comment-based help sections to all CmdLets and Functions
 - [ ] Seek peer review and comments
 - [ ] Integrate feedback
 - [ ] Improve Documentation
@@ -193,6 +195,117 @@ For additional technical information, see:
 - "Get-Help New-SqlQueryDataSet -Full"
 - [New-SqlQueryDataSets.tests.ps1](.\tests\New-SqlQueryDataSets.tests.ps1) in the [.\tests](.\tests) folder has full usage examples used to validate usage
 - [Developer and Contributor Guide](contributor.guide.md)
+
+## Folder Structure and Build Management
+
+The folder structure of the SqlQueryClass module is based on best practices for PowerShell module development and was initially created using [Manjunath Beli's](https://github.com/belibug) [ModuleTools](https://github.com/belibug) module. Check out his [Blog article](https://blog.belibug.com/post/ps-modulebuild) that explains the core concepts of ModuleTools.
+
+The the following ModuleTools CmdLets used in the build and maintenance process. They need to be executed from project root:
+
+- Get-MTProjectInfo -- returns hashatble of project configuration which can be used in pester tests or for general troubleshooting
+- Update-MTModuleVersion -- Increments SqlQueryClass module version by modifying the values in `project.json` or you can manually edit the json file.
+- Invoke-MTBuild -- Run `Invoke-MTBuild -Verbose` to build the module. The output will be saved in the `dist` folder, ready for distribution.
+- Invoke-MTTest -- Executes pester configuration (*.text.ps1) files in the `tests` folder
+
+- To skip a test, add `-skip` in describe block of the Pester *.test.ps1 file to skip.
+
+### Folder and Files
+ 
+```powershell
+.\SQLQUERYCLASS
+|   .gitignore
+|   api.guide.md
+|   CODE_OF_CONDUCT.md
+|   contributor.guide.md
+|   GitHub_Action_Docs.md
+|   LICENSE
+|   project.json
+|   README.md
+|   wpf.guide.md
+|
++---.github
+|   \---workflows
+|           tests.yml
+|
++---archive
++---dist
+|   \---SqlQueryClass
+|           about_SqlQueryClass.help.txt
+|           SqlQueryClass.psd1
+|           SqlQueryClass.psm1
+|
++---src
+|   +---private
+|   |       SqlQueryClass.ps1
+|   |
+|   +---public
+|   |       Dismount-Database.ps1
+|   |       Get-Database.ps1
+|   |       Get-DatabaseTable.ps1
+|   |       Invoke-DatabaseNonQuery.ps1
+|   |       Invoke-DatabaseQuery.ps1
+|   |       Mount-Database.ps1
+|   |       New-SqlQueryDataSet.ps1
+|   |
+|   \---resources
+|           about_SqlQueryClass.help.txt
+|
+\---tests
+        Module.Tests.ps1
+        New-SqlQueryDataSets.tests.ps1
+        OutputFiles.Tests.ps1
+        ScriptAnalyzer.Tests.ps1
+        TestDatabase1.mdf
+        TestDatabase1.parameters.psd1
+        TestDatabase1_log.ldf
+```
+
+All files and folders in the `src` folder, will be published Module.
+
+All other folder and files in the `.\SqlQueryClass` folder will resides in the [GitHub SqlQueryClass Repository](https://github.com/BrooksV/SqlQueryClass) except those excluded by inclusion in the `.\SqlQueryClass\.gitignore` file.
+
+### Project JSON File
+
+The `project.json` file contains all the important details about your module, is used during the module build process, and helps to generate the SqlQueryClass.psd1 manifest.
+
+### Root Level and Other Files
+
+- .gitignore -- List of file, folder, and wildcard specifications to ignore when publishing to GitHub repository
+- CODE_OF_CONDUCT.md -- Standard GitHub code of conduct and standards
+- GitHub_Action_Docs.md -- How to add GitHub Action WorkFlows to automate CI/CD (Continuous Integration/Continuous Deployment)
+- LICENSE -- MIT License notice and copyright
+- project.json -- ModuleTools project configuration file used to build the `SqlQueryClass` module
+- README.md -- Documentation (this) file for the `SqlQueryClass` module
+- .vscode\settings.json -- VS Code settings used during `SqlQueryClass` module development
+- *.guide.md -- various guides such as api, contributor, wpf
+
+### archive Folder
+
+`.\SqlQueryClass\archive` is not used in this project. Its a temporary place / BitBucket to hold code snippets and files during development and is not part of the build.
+
+### Dist (build output) Folder
+
+Generated module is stored in `dist\SqlQueryClass` folder, you can easily import it or publish it to PowerShell Gallery or repository.
+
+### Src Folder
+
+  - All functions in the `public` folder are exported during the module build.
+  - All functions in the `private` folder are accessible internally within the module but are not exposed outside the module.
+  - All files and folder contained in the `resources` folder will be published to the `dist\SqlQueryClass` folder.
+
+### Tests Folder
+
+If you want to run any `pester` tests, keep them in `tests` folder and named *.test.ps1.
+
+Run `Invoke-MTTest` to execute the tests.
+
+- .\tests\New-SqlQueryDataSets.tests.ps1 -- Full set of usage example Tests. Good Resource for usage examples
+- .\tests\Module.Tests.ps1 -- General Module Control to verify the module imports correctly
+- .\tests\OutputFiles.Tests.ps1 -- Module and Manifest testing to verify output files are readable
+- .\tests\ScriptAnalyzer.Tests.ps1 -- Code Quality Checks to verify PowerShell syntax and best practices
+- .\tests\TestDatabase1.parameters.psd1 -- PowerShell Data File of configuration settings used in New-SqlQueryDataSets.tests.ps1
+- .\tests\TestDatabase1.mdf -- Sample SQL Express Database File with samples data used in New-SqlQueryDataSets.tests.ps1
+- .\tests\TestDatabase1_log.ldf -- Created when using TestDatabase1.mdf
 
 ## Join the Conversation
 

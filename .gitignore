@@ -25,7 +25,7 @@ reflog.md
 
 # Ignore personal configuration files
 *.ps1rc
-.vscode/
+!.vscode/
 
 # Ignore IDE-specific files
 .vs/

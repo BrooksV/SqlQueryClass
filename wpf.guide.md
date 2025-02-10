@@ -32,12 +32,20 @@ This guide provides detailed instructions on how to use the `SqlQueryClass` modu
 
 Before you begin, ensure you have the following:
 
-- Visual Studio or Visual Studio Code installed
+- PowerShell Version 5.1 or higher
+- A text or code editor of you choice
+- - PowerShell scripts and even XAML can created and edited with any text or code editor
+- - PowerShell_ISE comes with most every Windows OS
+- - VS Code or Visual Studio are also very good for serious development
+- - - Helps with cloning repository and PS Code development
+- - - Visual Studio comes with Blend which is a WPF GUI based editor
+- Git for version control
 - Basic knowledge of WPF and XAML
 - SQL Server or SQL Express installed
 - The `SqlQueryClass` module installed
 - The example code below uses tests configuration and sample SQL Express database from [GitHub `SqlQueryClass` repository](https://github.com/BrooksV/SqlQueryClass)
-- - Clone the Repository to C:\Git folder to maintain compatibility with the sample and test data
+- - Clone the Repository (using git commands, VS Code, or Visual Studio) to C:\Git folder to maintain compatibility with the sample and test data
+- - Can also be done downloading the repository as a zip file
 
 ## Setting Up the Environment
 
@@ -47,7 +55,12 @@ Before you begin, ensure you have the following:
     Install-Module -Name SqlQueryClass -Repository PSGallery -Scope CurrentUser
     ```
 
-2. Create a new WPF project in Visual Studio or Visual Studio Code.
+2. Create a new PowerShell project in VS Code or Visual Studio.
+
+- Visual Studio's WPF project is a .Net C# project and is great for creating the XAML file that can be used with PowerShell or with C#.
+- There are a few differences in the XAML such as PowerShell does not support Click and other OnEvent handlers and need to be added in Code-Behind.
+- The advantage is it's PowerShell which is much easier to learn, use, and edit than a traditional .Net C# application development, test, and release process.
+- PowerShell WPF is great for adding simple to very complex GUI interfaces and applications for your scripts.
 
 ## Creating the WPF Application
 
@@ -77,7 +90,6 @@ The [PowerShell Code-Behind Example](#powershell-code-behind-example) uses the X
 Code-Behind is a PowerShell example script `WPF_SqlQueryClassUsageExample.ps1` to demonstrate the usage of the SqlQueryClass module in a WPF application and how to bind data to the `DataGrid`.
 
 ```powershell
-
 # Define the module name
 $moduleName = "SqlQueryClass"
 
@@ -143,13 +155,13 @@ $dataGrid = $window.FindName("dataGrid")
 $saveButton = $window.FindName("saveButton")
 $quitButton = $window.FindName("quitButton")
 
-$syncHash.UI.SqlResults.ExecuteQuery("SELECT * FROM myTable")
+$syncHash.UI.SqlResults.ExecuteQuery("SELECT * FROM [dbo].[SqlQuery]")
 $dataGrid.ItemsSource = $syncHash.UI.SqlResults.Tables[0].Result.DefaultView
 
 # Event handler for Save button
 $saveButton.Add_Click({
     $syncHash.UI.SqlResults.SaveChanges()
-    [System.Windows.MessageBox]::Show("Changes saved successfully.", "Save", [System.Windows.MessageBoxButton]::OK, [System.Windows.MessageBoxImage]::Information)
+    [System.Windows.MessageBox]::Show("<code to support CRUD actions is needed>`n`nChanges saved successfully.", "Save", [System.Windows.MessageBoxButton]::OK, [System.Windows.MessageBoxImage]::Information)
 })
 
 # Event handler for Quit button
@@ -167,13 +179,44 @@ $window.ShowDialog() | Out-Null
 Create an instance of the `SqlQueryDataSet` class and configure the necessary properties such as `SQLServer`, `Database`, or `ConnectionString`.
 
 ```powershell
-$syncHash.UI.SqlResults = New-SqlQueryDataSet -SQLServer $SqlServer -Database $Database
+# Either one of the following is needed. 1st one creates a SqlConnectonString, 2nd one uses the $ConnectionString value
+# $syncHash.UI.SqlResults = New-SqlQueryDataSet -SQLServer $SqlServer -Database $Database
 $syncHash.UI.SqlResults = New-SqlQueryDataSet -SQLServer -ConnectionString $ConnectionString
 ```
 
 ### Executing the Query
 
 Use the `ExecuteQuery` method to execute the SQL query and retrieve the results.
+
+```powershell
+$syncHash.UI.SqlResults.ExecuteQuery("SELECT * FROM [dbo].[SqlQuery]")
+$dataGrid.ItemsSource = $syncHash.UI.SqlResults.Tables[0].Result.DefaultView
+```
+
+Explanation:
+
+Class [SqlQueryDataSet] has these properties: SQLServer, Database, ConnectionTimeout, CommandTimeout, ConnectionString, SQLConnection, TableIndex, Tables, TableNames, DisplayResults, KeepAlive
+
+- `$syncHash.UI.SqlResults` is the instance of [SqlQueryDataSet] created and returned by the New-SqlQueryDataSet function
+- `$syncHash.UI.SqlResults.Tables` is the collection of [SqlQueryTable], one for each unique query added or executed by the class
+- `$syncHash.UI.SqlResults.Tables[0]` is the first instance of [SqlQueryTable] which is the Query just created by ExecuteQuery() method
+- `$syncHash.UI.SqlResults.Tables[0].Result` is the ExecuteQuery() results returned as a [System.Data.DataTable]
+- - Execute methods always saves data to Tables[0].Result
+- `$syncHash.UI.SqlResults.Tables[0].Result.DefaultView` is the [System.Data.DataView] required for binding to the WPF XAML DataGrid component
+
+Other `$syncHash.UI.SqlResults` properties:
+- TableIndex -- `[int]` value that represents the currently selected index used in `Tables[TableIndex]`
+- TableNames -- HashTable of Unique Query Table identifiers and the index in the Table[] collection
+- - Used to lookup index by TableName, Example: `$syncHash.UI.SqlResults.TableNames['DBTable']` returns 0
+- DisplayResults -- Helpful when wanting to see the results from the PS Pipeline
+- - True sends the results to the PS Pipeline after its saved to `$syncHash.UI.SqlResults.Tables[0].Result`
+- - False only saves Result to `$syncHash.UI.SqlResults.Tables[0].Result`
+
+Class [SqlQueryTable] has these properties: TableIndex, TableName, Query, SQLCommand, SqlDataAdapter, ResultType, Result, isDirty, QueryFile, Parent
+
+For WPF data binding to work both ways, properties (Result, SqlDataAdapter, and SQLCommand) need to be persistent to performing CRUD actions. A WPF application might involve many tables and datasets for controls like comboboxes, lists, datagrids, treeviews, ect.. This is why [SqlQueryTable] was needed for every unique query dataset.
+
+See [API Guide and Class Documentation](api.guide.md) for detailed information.
 
 ### Binding the DataTable to the DataGrid
 
