@@ -1,43 +1,43 @@
-# SqlQueryClass
+# GuiMyPS
 
-The SqlQueryClass module provides a set of functions and cmdlets for working with SQL databases. It includes functionality for connecting, executing SQL queries, and managing output as DataTable, DataAdapter, DataSet, SqlReader, or NonQuery result objects.
+Module helps in creating and running WPF GUI based PowerShell Applications.
 
-## `SqlQueryClass` Module and Status Details
+## `GuiMyPS` Module and Status Details
 
 Name          | Version | PS Compatibility | Project Uri (GitHub)
 ------------- | ------- | ---------------- | ------------------------------------------------------------------------------------
-SqlQueryClass | 0.1.3   | 5.1              | [https://github.com/BrooksV/SqlQueryClass](https://github.com/BrooksV/SqlQueryClass)
+GuiMyPS | 0.0.1   | 5.1              | [https://github.com/BrooksV/GuiMyPS](https://github.com/BrooksV/GuiMyPS)
 
-[PSGalleryLink]: https://www.powershellgallery.com/packages/SqlQueryClass/
-[BadgeIOCount]: https://img.shields.io/powershellgallery/dt/SqlQueryClass.svg?label=downoads%20SqlQueryClass%40PSGallery
-[WorkFlowStatus]: https://img.shields.io/github/actions/workflow/status/BrooksV/SqlQueryClass/tests.yml?label=tests.yml%20build
+[PSGalleryLink]: https://www.powershellgallery.com/packages/GuiMyPS/
+[BadgeIOCount]: https://img.shields.io/powershellgallery/dt/GuiMyPS.svg?label=downoads%20GuiMyPS%40PSGallery
+[WorkFlowStatus]: https://img.shields.io/github/actions/workflow/status/BrooksV/GuiMyPS/tests.yml?label=tests.yml%20build
 
-![PowerShell Gallery Version](https://img.shields.io/powershellgallery/v/SqlQueryClass.svg)
+![PowerShell Gallery Version](https://img.shields.io/powershellgallery/v/GuiMyPS.svg)
 [![maintainer](https://img.shields.io/badge/maintainer-BrooksV-orange)](https://github.com/BrooksV)
-[![License](https://img.shields.io/github/license/BrooksV/SqlQueryClass)](https://github.com/BrooksV/SqlQueryClass/blob/main/LICENSE)
-[![contributors](https://img.shields.io/github/contributors/BrooksV/SqlQueryClass.svg)](https://github.com/BrooksV/SqlQueryClass/graphs/contributors/)
-[![last-commit](https://img.shields.io/github/last-commit/BroksV/SqlQueryClass.svg)](https://github.com/BrooksV/SqlQueryClass/commits/)
-[![issues](https://img.shields.io/github/issues/BrooksV/SqlQueryClass.svg)](https://github.com/BrooksV/SqlQueryClass/issues/)
-[![issues-closed](https://img.shields.io/github/issues-closed/BrooksV/SqlQueryClass.svg)](https://github.com/BrooksV/SqlQueryClass/issues?q=is%3Aissue+is%3Aclosed)
-[![GitHub stars](https://img.shields.io/github/stars/BrooksV/SqlQueryClass.svg)](https://github.com/BrooksV/SqlQueryClass/stargazers)
-[![GitHub forks](https://img.shields.io/github/forks/BrooksV/SqlQueryClass.svg)](https://github.com/BrooksV/SqlQueryClass/network/members)
-[![GitHub pull requests](https://img.shields.io/github/issues-pr/BrooksV/SqlQueryClass.svg)](https://github.com/BrooksV/SqlQueryClass/pulls)
+[![License](https://img.shields.io/github/license/BrooksV/GuiMyPS)](https://github.com/BrooksV/GuiMyPS/blob/main/LICENSE)
+[![contributors](https://img.shields.io/github/contributors/BrooksV/GuiMyPS.svg)](https://github.com/BrooksV/GuiMyPS/graphs/contributors/)
+[![last-commit](https://img.shields.io/github/last-commit/BroksV/GuiMyPS.svg)](https://github.com/BrooksV/GuiMyPS/commits/)
+[![issues](https://img.shields.io/github/issues/BrooksV/GuiMyPS.svg)](https://github.com/BrooksV/GuiMyPS/issues/)
+[![issues-closed](https://img.shields.io/github/issues-closed/BrooksV/GuiMyPS.svg)](https://github.com/BrooksV/GuiMyPS/issues?q=is%3Aissue+is%3Aclosed)
+[![GitHub stars](https://img.shields.io/github/stars/BrooksV/GuiMyPS.svg)](https://github.com/BrooksV/GuiMyPS/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/BrooksV/GuiMyPS.svg)](https://github.com/BrooksV/GuiMyPS/network/members)
+[![GitHub pull requests](https://img.shields.io/github/issues-pr/BrooksV/GuiMyPS.svg)](https://github.com/BrooksV/GuiMyPS/pulls)
 
 ### Build and Release Statistics
 
-[![SqlQueryClass@PowerShell Gallery][BadgeIOCount]][PSGalleryLink]
+[![GuiMyPS@PowerShell Gallery][BadgeIOCount]][PSGalleryLink]
 ![WorkFlow Status][WorkFlowStatus]
-![Build Status](https://img.shields.io/github/actions/workflow/status/BrooksV/SqlQueryClass/ci.yml?label=ci.yml%20build)
+![Build Status](https://img.shields.io/github/actions/workflow/status/BrooksV/GuiMyPS/ci.yml?label=ci.yml%20build)
 
-![Version](https://img.shields.io/github/v/release/BrooksV/SqlQueryClass.svg?label=version)
-![GitHub All Releases](https://img.shields.io/github/downloads/BrooksV/SqlQueryClass/total.svg?label=release%20dl%20all%40GitHub)
-![GitHub release (latest by date)](https://img.shields.io/github/downloads/BrooksV/SqlQueryClass/latest/total.svg?label=release%20dl%20by%20date%40GitHub)
-![Downloads](https://img.shields.io/github/downloads/BrooksV/SqlQueryClass/total.svg?label=total%20release%20dl%40GitHub)
+![Version](https://img.shields.io/github/v/release/BrooksV/GuiMyPS.svg?label=version)
+![GitHub All Releases](https://img.shields.io/github/downloads/BrooksV/GuiMyPS/total.svg?label=release%20dl%20all%40GitHub)
+![GitHub release (latest by date)](https://img.shields.io/github/downloads/BrooksV/GuiMyPS/latest/total.svg?label=release%20dl%20by%20date%40GitHub)
+![Downloads](https://img.shields.io/github/downloads/BrooksV/GuiMyPS/total.svg?label=total%20release%20dl%40GitHub)
 
 ### Related Links
 
-- [LicenseUri](https://github.com/BrooksV/SqlQueryClass/blob/main/LICENSE)
-- [ProjectUri](https://github.com/BrooksV/SqlQueryClass)
+- [LicenseUri](https://github.com/BrooksV/GuiMyPS/blob/main/LICENSE)
+- [ProjectUri](https://github.com/BrooksV/GuiMyPS)
 
 ### Module Tags / Keywords
 
@@ -46,20 +46,20 @@ SqlQueryClass | 0.1.3   | 5.1              | [https://github.com/BrooksV/SqlQuer
 ## Installation
 
 ```powershell
-Install-Module -Name SqlQueryClass -Repository PSGallery -Scope CurrentUser
+Install-Module -Name GuiMyPS -Repository PSGallery -Scope CurrentUser
 ```
 
 To load a local build of the module, use Import-Module as follows:
 
 ```powershell
-Import-Module -Name "C:\Git\SqlQueryClass\dist\SqlQueryClass\SqlQueryClass.psd1" -Force -verbose
+Import-Module -Name "C:\Git\GuiMyPS\dist\GuiMyPS\GuiMyPS.psd1" -Force -verbose
 ```
 
 ### Requirements
 
 - Tested with PowerShell 5.1 and 7.5x
 - No known dependencies for usage
-- VS Code and clone [Brooks Vaughn's SqlQueryClass](https://github.com/BrooksV/SqlQueryClass) Repository
+- VS Code and clone [Brooks Vaughn's GuiMyPS](https://github.com/BrooksV/GuiMyPS) Repository
 - Module build process uses [Manjunath Beli's](https://github.com/belibug) [ModuleTools](https://github.com/belibug) module.
 - Test scripts requires the Pester module and SQL Express
 - Includes sample SQL Express database file used in test scripts
@@ -82,7 +82,7 @@ Import-Module -Name "C:\Git\SqlQueryClass\dist\SqlQueryClass\SqlQueryClass.psd1"
 
 ## Usage
 
-The SqlQueryClass Module was developed to support data binding of WPF (Windows Presentation Framework) elements to DataTables and uses SQL Adapter features for CRUD operations. Having a single class object is very convenient since it allows for maintaining connectivity, queries, and results.
+The GuiMyPS Module was developed to support data binding of WPF (Windows Presentation Framework) elements to DataTables and uses SQL Adapter features for CRUD operations. Having a single class object is very convenient since it allows for maintaining connectivity, queries, and results.
 
 It can be useful in any PS script that needs to read and write to SQL databases. For quick and simple, the Module's helper functions are also a consideration. When needing to use the Classes, use the `New-SqlQueryDataSet` function which calls the Parent Class [SqlQueryDataSet]::New() constructor and return an instance of the class.
 
@@ -129,11 +129,11 @@ This includes details on:
 - [Setup](contributor.guide.md#setup)
 - [Source Files used in the Module](contributor.guide.md#source-files-used-in-the-module)
 - [Module Build Process](contributor.guide.md#module-build-process)
-- [Publishing `SqlQueryClass` Module to GitHub](contributor.guide.md#publishing-sqlqueryclass-module-to-github)
+- [Publishing `GuiMyPS` Module to GitHub](contributor.guide.md#publishing-GuiMyPS-module-to-github)
 - [Code Review and Feedback](contributor.guide.md#code-review-and-feedback)
 - [Merge the Pull Request](contributor.guide.md#merge-the-pull-request)
 - [Cleanup](contributor.guide.md#cleanup)
-- [Publishing `SqlQueryClass` Module to PowerShell Gallery](contributor.guide.md#publishing-sqlqueryclass-module-to-powershell-gallery)
+- [Publishing `GuiMyPS` Module to PowerShell Gallery](contributor.guide.md#publishing-GuiMyPS-module-to-powershell-gallery)
 
 ### ToDo
 
@@ -147,7 +147,7 @@ This includes details on:
 ## Module Exported Functions
 
 ```powershell
-Get-Command -Module "SqlQueryClass" -Syntax
+Get-Command -Module "GuiMyPS" -Syntax
 
 - Dismount-Database [[-connectionString] <Object>] [[-Database] <Object>] [-Quiet]
 - Get-Database [[-connectionString] <Object>] [[-query] <Object>] [-Quiet]
@@ -199,21 +199,27 @@ For additional technical information, see:
 
 ## Folder Structure and Build Management
 
-The folder structure of the SqlQueryClass module is based on best practices for PowerShell module development and was initially created using [Manjunath Beli's](https://github.com/belibug) [ModuleTools](https://github.com/belibug) module. Check out his [Blog article](https://blog.belibug.com/post/ps-modulebuild) that explains the core concepts of ModuleTools.
+The folder structure of the GuiMyPS module is based on best practices for PowerShell module development and was initially created using [Manjunath Beli's](https://github.com/belibug) [ModuleTools](https://github.com/belibug) module. Check out his [Blog article](https://blog.belibug.com/post/ps-modulebuild) that explains the core concepts of ModuleTools.
+
+Install [Manjunath Beli's ModuleTools](https://github.com/belibug/ModuleTools) module as the module build process uses ModuleTools
+
+```powershell
+Find-Module -Name ModuleTools | Install-Module -Scope CurrentUser -Verbose
+```
 
 The the following ModuleTools CmdLets used in the build and maintenance process. They need to be executed from project root:
 
-- Get-MTProjectInfo -- returns hashatble of project configuration which can be used in pester tests or for general troubleshooting
-- Update-MTModuleVersion -- Increments SqlQueryClass module version by modifying the values in `project.json` or you can manually edit the json file.
+- Get-MTProjectInfo -- returns HashTable of project configuration which can be used in pester tests or for general troubleshooting
+- Update-MTModuleVersion -- Increments GuiMyPS module version by modifying the values in `project.json` or you can manually edit the json file.
 - Invoke-MTBuild -- Run `Invoke-MTBuild -Verbose` to build the module. The output will be saved in the `dist` folder, ready for distribution.
 - Invoke-MTTest -- Executes pester configuration (*.text.ps1) files in the `tests` folder
 
 - To skip a test, add `-skip` in describe block of the Pester *.test.ps1 file to skip.
 
 ### Folder and Files
- 
+
 ```powershell
-.\SQLQUERYCLASS
+.\GuiMyPS
 |   .gitignore
 |   api.guide.md
 |   CODE_OF_CONDUCT.md
@@ -230,14 +236,14 @@ The the following ModuleTools CmdLets used in the build and maintenance process.
 |
 +---archive
 +---dist
-|   \---SqlQueryClass
-|           about_SqlQueryClass.help.txt
-|           SqlQueryClass.psd1
-|           SqlQueryClass.psm1
+|   \---GuiMyPS
+|           about_GuiMyPS.help.txt
+|           GuiMyPS.psd1
+|           GuiMyPS.psm1
 |
 +---src
 |   +---private
-|   |       SqlQueryClass.ps1
+|   |       GuiMyPS.ps1
 |   |
 |   +---public
 |   |       Dismount-Database.ps1
@@ -249,7 +255,7 @@ The the following ModuleTools CmdLets used in the build and maintenance process.
 |   |       New-SqlQueryDataSet.ps1
 |   |
 |   \---resources
-|           about_SqlQueryClass.help.txt
+|           about_GuiMyPS.help.txt
 |
 \---tests
         Module.Tests.ps1
@@ -263,11 +269,11 @@ The the following ModuleTools CmdLets used in the build and maintenance process.
 
 All files and folders in the `src` folder, will be published Module.
 
-All other folder and files in the `.\SqlQueryClass` folder will resides in the [GitHub SqlQueryClass Repository](https://github.com/BrooksV/SqlQueryClass) except those excluded by inclusion in the `.\SqlQueryClass\.gitignore` file.
+All other folder and files in the `.\GuiMyPS` folder will resides in the [GitHub GuiMyPS Repository](https://github.com/BrooksV/GuiMyPS) except those excluded by inclusion in the `.\GuiMyPS\.gitignore` file.
 
 ### Project JSON File
 
-The `project.json` file contains all the important details about your module, is used during the module build process, and helps to generate the SqlQueryClass.psd1 manifest.
+The `project.json` file contains all the important details about your module, is used during the module build process, and helps to generate the GuiMyPS.psd1 manifest.
 
 ### Root Level and Other Files
 
@@ -275,24 +281,24 @@ The `project.json` file contains all the important details about your module, is
 - CODE_OF_CONDUCT.md -- Standard GitHub code of conduct and standards
 - GitHub_Action_Docs.md -- How to add GitHub Action WorkFlows to automate CI/CD (Continuous Integration/Continuous Deployment)
 - LICENSE -- MIT License notice and copyright
-- project.json -- ModuleTools project configuration file used to build the `SqlQueryClass` module
-- README.md -- Documentation (this) file for the `SqlQueryClass` module
-- .vscode\settings.json -- VS Code settings used during `SqlQueryClass` module development
+- project.json -- ModuleTools project configuration file used to build the `GuiMyPS` module
+- README.md -- Documentation (this) file for the `GuiMyPS` module
+- .vscode\settings.json -- VS Code settings used during `GuiMyPS` module development
 - *.guide.md -- various guides such as api, contributor, wpf
 
 ### archive Folder
 
-`.\SqlQueryClass\archive` is not used in this project. Its a temporary place / BitBucket to hold code snippets and files during development and is not part of the build.
+`.\GuiMyPS\archive` is not used in this project. Its a temporary place / BitBucket to hold code snippets and files during development and is not part of the build.
 
 ### Dist (build output) Folder
 
-Generated module is stored in `dist\SqlQueryClass` folder, you can easily import it or publish it to PowerShell Gallery or repository.
+Generated module is stored in `dist\GuiMyPS` folder, you can easily import it or publish it to PowerShell Gallery or repository.
 
 ### Src Folder
 
-  - All functions in the `public` folder are exported during the module build.
-  - All functions in the `private` folder are accessible internally within the module but are not exposed outside the module.
-  - All files and folder contained in the `resources` folder will be published to the `dist\SqlQueryClass` folder.
+- All functions in the `public` folder are exported during the module build.
+- All functions in the `private` folder are accessible internally within the module but are not exposed outside the module.
+- All files and folder contained in the `resources` folder will be published to the `dist\GuiMyPS` folder.
 
 ### Tests Folder
 
@@ -310,7 +316,7 @@ Run `Invoke-MTTest` to execute the tests.
 
 ## Join the Conversation
 
-We encourage you to participate in our [Discussions](https://github.com/BrooksV/SqlQueryClass/discussions) section! Whether you have questions, ideas, or just want to chat with other users, Discussions is the place to be. Your feedback and contributions are valuable to us!
+We encourage you to participate in our [Discussions](https://github.com/BrooksV/GuiMyPS/discussions) section! Whether you have questions, ideas, or just want to chat with other users, Discussions is the place to be. Your feedback and contributions are valuable to us!
 
 ## License
 
@@ -319,11 +325,11 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## Acknowledgements
 
 - [Manjunath Beli](https://github.com/belibug) for the [ModuleTools](https://github.com/belibug/ModuleTools) module used in the build process.
-- [Brooks Vaughn](https://github.com/BrooksV) for maintaining the SqlQueryClass module.
+- [Brooks Vaughn](https://github.com/BrooksV) for maintaining the GuiMyPS module.
 
 ## Contact
 
 For support, inquiries, or feedback, contact Brooks Vaughn at [BrooksV](https://github.com/BrooksV) through one of the following methods:
 
-- **GitHub Issues**: [Open an issue](https://github.com/BrooksV/SqlQueryClass/issues)
-- **GitHub Discussions**: [Start a discussion](https://github.com/BrooksV/SqlQueryClass/discussions)
+- **GitHub Issues**: [Open an issue](https://github.com/BrooksV/GuiMyPS/issues)
+- **GitHub Discussions**: [Start a discussion](https://github.com/BrooksV/GuiMyPS/discussions)
