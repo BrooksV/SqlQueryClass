@@ -16,7 +16,7 @@ Describe 'File: <_.basename>' -ForEach $files {
             $null = [System.Management.Automation.PSParser]::Tokenize($psFile, [ref]$errors)
             $errors.Count | Should -Be 0
         }
-        It 'passess ScriptAnalyzer' {
+        It 'passes ScriptAnalyzer' {
             $saResults = Invoke-ScriptAnalyzer -Path $_ -Settings $ScriptAnalyzerSettings
             $saResults | Should -BeNullOrEmpty -Because $($saResults.Message -join ';')
         }         

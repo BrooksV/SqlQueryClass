@@ -11,9 +11,14 @@ GuiMyPS - Module helps in creating and running WPF GUI based PowerShell Applicat
 
 #>
 Function New-XamlWindow {
+    [CmdletBinding(SupportsShouldProcess=$true)]
     Param (
-        $xaml,
-        $NoXRemoval
+        [Parameter(Mandatory=$true)]
+        [Alias("InputObject")]
+        [System.Object]$xaml,
+
+        [Parameter(Mandatory=$false)]
+        [switch]$NoXRemoval
     )
     # Load the necessary assemblies
     Add-Type -AssemblyName PresentationFramework
@@ -30,15 +35,24 @@ Function New-XamlWindow {
     Function Remove-XName {
         [CmdletBinding(SupportsShouldProcess=$true)]
         Param (
-            $xamlString,
-            $NoXRemoval
+            [Parameter(Mandatory=$true)]
+            [string]$xamlString,
+
+            [Parameter(Mandatory=$false)]
+            [switch]$NoXRemoval
         )
+
         If ($NoXRemoval) {
             $xamlString
         } Else {
-            ((($xamlString -replace 'mc:Ignorable="d"','') -replace "x:Na",'Na') -replace '^<Win.*', '<Window')
+            if ($PSCmdlet.ShouldProcess("XAML String", "Remove x:Name attributes")) {
+                ((($xamlString -replace 'mc:Ignorable="d"','') -replace "x:Na",'Na') -replace '^<Win.*', '<Window')
+            } else {
+                $xamlString
+            }
         }
     }
+
     # Define Return and working Variable
     $uiForm = $null
     $xamlReader = $null
@@ -55,7 +69,8 @@ Function New-XamlWindow {
                     Throw "-xaml parameter as file path was valid but it's content is not XAML"
                 }
             } Elseif ($xaml -match '<(Window|Grid|StackPanel|Button|DataGrid|TextBox)') {
-                $newXaml = [xml](Remove-XName -NoXRemoval:$NoXRemoval -xamlString $xaml)
+                $xamlString = Remove-XName -NoXRemoval:$NoXRemoval -xamlString $xaml
+                $newXaml = [xml]$xamlString
             } Else {
                 Throw "-xaml parameter as XAML String has no valid XAML content"
             }
@@ -100,8 +115,13 @@ Function New-XamlWindow {
         #   element name begin with "_" as in Name="_MyObj" or x:Name="_MyObj"
         # For the most part, this allows the Code-Behind to directly access the element without needing to find it first
         $FormObjects = $newXaml.SelectNodes("//*[@Name]").Where({ $_.Name -like "_*" }).ForEach({
-            Write-Output ("WPF$($_.Name)")
-            Set-Variable -Name "WPF$($_.Name)" -Value $uiForm.FindName($_.Name)
+            $element = $uiForm.FindName($_.Name)
+            If ($element) {
+                Write-Output ("WPF$($_.Name)")
+                Set-Variable -Name "WPF$($_.Name)" -Value $element -Force -Scope Global -Visibility Public
+            } Else {
+                Write-Warning "Unable to locate $($_.Name) element name"
+            }
         })
         Write-Host "`nList of `$WPF_ named Variables of XAML Elements`n$($FormObjects | Out-String)`n" -ForegroundColor Green
         $uiForm
