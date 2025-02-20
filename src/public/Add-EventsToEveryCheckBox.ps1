@@ -62,25 +62,8 @@ Function Add-EventsToEveryCheckBox {
         }
         If ($PreventSelectionScrolling) {
             # This prevents horizontal content scrolling when an item is clicked
-            # Suppress PSScriptAnalyzer rule for assignment to automatic variable
             $Element.Add_RequestBringIntoView({
-                # PSScriptAnalyzer rule suppression for $sender
-                # [Diagnostics.CodeAnalysis.SuppressMessage("PSAvoidAssignmentToAutomaticVariable", "AvoidAssignmentToAutomaticVariable", Justification="The `$sender variable is required for event handlers.")]
-                # [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidAssignmentToAutomaticVariable", "")]
-                # [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidAssignmentToAutomaticVariable', 'sender', Justification='Assignment is by design.')]
-                # [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidAssignmentToAutomaticVariable', 'sender', Justification='Assignment is by design.')]
-                # [Diagnostics.CodeAnalysis.SuppressMessage('sender','PSAvoidAssignmentToAutomaticVariable',Justification='Assignment is by design.')]
-                # [System.Diagnostics.CodeAnalysis.SuppressMessage('PSAvoidAssignmentToAutomaticVariable','',Scope='Namespace')]
-                # [System.Diagnostics.CodeAnalysis.SuppressMessage('PSAvoidAssignmentToAutomaticVariable','sender',Justification='Assignment is by design.')]
-                # Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidAssignmentToAutomaticVariable','sender',Justification='Assignment is by design.')]
-                # Get-ScriptAnalyzerRule -Name 'PSAvoidAssignmentToAutomaticVariable' | Format-List
-                # [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidAssignmentToAutomaticVariable','$sender',Justification='Assignment is by design.')]
-                # [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidAssignmentToAutomaticVariable", "")]
-                # [CmdletBinding()]
                 Param(
-                    # [System.Diagnostics.CodeAnalysis.SuppressMessage('PSAvoidAssignmentToAutomaticVariable','',Justification='Assignment is by design.')]
-                    # [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidAssignmentToAutomaticVariable', 'Assignment is by design.')]
-                    # [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidAssignmentToAutomaticVariable','$sender',Justification='Assignment is by design.')]
                     [object]$theSender, 
                     [System.Windows.RequestBringIntoViewEventArgs]$e
                 )

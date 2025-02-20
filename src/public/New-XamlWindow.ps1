@@ -1,84 +1,127 @@
 <#
-PsWpfHelper
-WpfHelperForPS
-PsWpfUtils
-WpfUtilsForPS
-PsWpfLib
-PsXaml
-PsXamlHelper
-GuiMyPS - Collections of XAML & WPF Helper Functions to simplify creation of GUI based PowerShell Applications 
-GuiMyPS - Module helps in creating and running WPF GUI based PowerShell Applications.
+.SYNOPSIS
+    Helper function that processes and loads XAML (as string, filename, or as [XML] object) into a WPF Form Object.
 
+.DESCRIPTION
+    The New-XamlWindow function processes and loads XAML (as string, filename, or as [XML] object) into a WPF Form Object.
+
+.PARAMETER xaml
+    The XAML content to process and load.
+
+.PARAMETER NoXRemoval
+    A switch to prevent the removal of x:Name attributes.
+
+.EXAMPLE
+    # Test for XAML String
+    try {
+        $form1 = New-XamlWindow -xaml $inputXML
+        Add-ClickToEveryButton -Element $form1 -ClickHandler $handler_button_Click
+        $form1.ShowDialog()
+    } catch {
+        Write-Warning ($_ | Format-List | Out-String)
+    }
+
+.EXAMPLE
+    # Test for File Path to XAML file with two approaches for Adding Click Events
+    # Note: Code for $handler_MenuItem_Click can be generated using Build-HandlerCode()
+    try {
+        $form = New-XamlWindow -xaml 'C:\Git\SqlQueryEditor\src\resources\SqlQueryEditor.xaml'
+        # Add-ClickToEveryMenuItem -MenuObj $WPF_menuMasterDataGrid -Handler $handler_MenuItem_Click
+        # Add-ClickToEveryMenuItem -MenuObj $WPF_menuDetailDataGrid -Handler $handler_MenuItem_Click
+        $elements = @()
+        $elements += Find-EveryControl -Element $form -ControlType 'System.Windows.Controls.Primitives.ToggleButton'
+        $elements += Find-EveryControl -Element $form -ControlType 'System.Windows.Controls.MenuItem'
+        $elements.ForEach({$_.Element.Add_Click($handler_MenuItem_Click)})
+        $form.ShowDialog()
+    } catch {
+        Write-Warning ($_ | Format-List | Out-String)
+    }
+
+.EXAMPLE
+    # Test for [System.Xml.XmlDocument]
+    try {
+        $xaml = [xml]$inputXML
+        $form2 = New-XamlWindow -xaml $xaml
+        Add-ClickToEveryButton -Element $form2 -ClickHandler $handler_button_Click
+        $form2.ShowDialog()
+    } catch {
+        Write-Warning ($_ | Format-List | Out-String)
+    }
+
+.NOTES
+    Author: Brooks Vaughn
+    Date: 2025-02-19 18:28:36
 #>
 Function New-XamlWindow {
-    [CmdletBinding(SupportsShouldProcess=$true)]
+    [CmdletBinding(SupportsShouldProcess = $true)]
     Param (
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [Alias("InputObject")]
         [System.Object]$xaml,
 
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory = $false)]
         [switch]$NoXRemoval
     )
+
     # Load the necessary assemblies
     Add-Type -AssemblyName PresentationFramework
 
     <#
     XAML Elements might use either x:Name="" or Name="" 
-    The x: refers to the namespace xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" which is not automatically defined in PowerShell
-    To use XPath queries are used during preprocessing of the XAML Text, you have to create a NamespaceManager and Add the missing NameSpaces
-    For x:Name, the XPath query would be $xaml.SelectNodes("//*[@x:Name]", $nsManager)
-    For Name, the XPath query would be $xaml.SelectNodes("//*[@Name]", $nsManager)
-    By Removing x:Name from the XAML string before converting to [System.Xml.XmlDocument], 
-      there is not need for the NamespaceManager and XPath needs only$xaml.SelectNodes("//*[@Name]")
+    The x: refers to the namespace xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" which is not automatically defined in PowerShell.
+    To use XPath queries during preprocessing of the XAML Text, you have to create a NamespaceManager and add the missing namespaces.
+    For x:Name, the XPath query would be $xaml.SelectNodes("//*[@x:Name]", $nsManager).
+    For Name, the XPath query would be $xaml.SelectNodes("//*[@Name]", $nsManager).
+    By removing x:Name from the XAML string before converting to [System.Xml.XmlDocument], there is no need for the NamespaceManager and XPath needs only $xaml.SelectNodes("//*[@Name]").
     #>
     Function Remove-XName {
-        [CmdletBinding(SupportsShouldProcess=$true)]
+        [CmdletBinding(SupportsShouldProcess = $true)]
         Param (
-            [Parameter(Mandatory=$true)]
+            [Parameter(Mandatory = $true)]
             [string]$xamlString,
 
-            [Parameter(Mandatory=$false)]
+            [Parameter(Mandatory = $false)]
             [switch]$NoXRemoval
         )
 
         If ($NoXRemoval) {
             $xamlString
         } Else {
-            if ($PSCmdlet.ShouldProcess("XAML String", "Remove x:Name attributes")) {
-                ((($xamlString -replace 'mc:Ignorable="d"','') -replace "x:Na",'Na') -replace '^<Win.*', '<Window')
-            } else {
+            If ($PSCmdlet.ShouldProcess("XAML String", "Remove x:Name attributes")) {
+                ((($xamlString -replace 'mc:Ignorable="d"', '') -replace "x:Na", 'Na') -replace '^<Win.*', '<Window')
+            } Else {
                 $xamlString
             }
         }
     }
 
-    # Define Return and working Variable
+    # Define return and working variables
     $uiForm = $null
     $xamlReader = $null
+
     Try {
-        # process the $xaml inputObject into a XmlDocument and create reader
+        # Process the $xaml input object into an XmlDocument and create reader
         If ($xaml -is [System.Xml.XmlDocument]) {
             $newXaml = $xaml
         } ElseIf ($xaml -is [System.String]) {
             If (Test-Path -Path $xaml -PathType Leaf -ErrorAction SilentlyContinue) {
                 $xamlString = Remove-XName -NoXRemoval:$NoXRemoval -xamlString (Get-Content -Path $xaml -Raw)
-                if ($xamlString -match '<(Window|Grid|StackPanel|Button|DataGrid|TextBox)') {
+                If ($xamlString -match '<(Window|Grid|StackPanel|Button|DataGrid|TextBox)') {
                     $newXaml = [xml]$xamlString
                 } Else {
-                    Throw "-xaml parameter as file path was valid but it's content is not XAML"
+                    Throw "-xaml parameter as file path was valid but its content is not XAML"
                 }
-            } Elseif ($xaml -match '<(Window|Grid|StackPanel|Button|DataGrid|TextBox)') {
+            } ElseIf ($xaml -match '<(Window|Grid|StackPanel|Button|DataGrid|TextBox)') {
                 $xamlString = Remove-XName -NoXRemoval:$NoXRemoval -xamlString $xaml
                 $newXaml = [xml]$xamlString
             } Else {
                 Throw "-xaml parameter as XAML String has no valid XAML content"
             }
         } Else {
-            Throw "-xaml is not a valid [System.Xml.XmlDocument], xaml string, or filepath to a xaml file"
+            Throw "-xaml is not a valid [System.Xml.XmlDocument], XAML string, or filepath to a XAML file"
         }
 
-        # preform XML data cleanup and create Powershell $WPF_* Variables for xaml names that begin with "_"
+        # Perform XML data cleanup and create PowerShell $WPF_* Variables for XAML names that begin with "_"
         # Remove unsupported namespaces created by XAML editors like Blend / Visual Studio
         $newXaml.Window.RemoveAttribute('x:Class')
         $newXaml.Window.RemoveAttribute('d')
@@ -87,17 +130,17 @@ Function New-XamlWindow {
         $problemObjects = $newXaml.SelectNodes("//*[@Name]").Where({
             $_.Click -or $_.TextChanged -or $_.SelectionChanged -or $_.Checked -or $_.Unchecked -or $_.ValueChanged}) | 
                 Select-Object -Property Name, LocalName, Click, TextChanged, SelectionChanged, Checked, Unchecked, ValueChanged
-        
+
         $errorHeading = "XAML String has unsupported events defined and cannot be converted by PowerShell WPF" + [System.Environment]::NewLine
         $errorText = ForEach ($obj in $problemObjects) {
             Switch ($obj) {
-                {$_.Click} {"$($_.LocalName) named ($($_.Name)) Has Click event and needs to be removed"; break}
-                {$_.TextChanged} {"$($_.LocalName) named ($($_.Name)) Has TextChanged event and needs to be removed"; break}
-                {$_.SelectionChanged} {"$($_.LocalName) named ($($_.Name)) Has SelectionChanged event and needs to be removed"; break}
-                {$_.Checked} {"$($_.LocalName) named ($($_.Name)) Has Checked event and needs to be removed"; break}
-                {$_.Unchecked} {"$($_.LocalName) named ($($_.Name)) Has Unchecked event and needs to be removed"; break}
-                {$_.ValueChanged} {"$($_.LocalName) named ($($_.Name)) Has ValueChanged event and needs to be removed"; break}
-                Default {"Skipping: $($_.LocalName) named ($($_.Name))"}
+                { $_.Click } { "$($_.LocalName) named ($($_.Name)) has Click event and needs to be removed"; break }
+                { $_.TextChanged } { "$($_.LocalName) named ($($_.Name)) has TextChanged event and needs to be removed"; break }
+                { $_.SelectionChanged } { "$($_.LocalName) named ($($_.Name)) has SelectionChanged event and needs to be removed"; break }
+                { $_.Checked } { "$($_.LocalName) named ($($_.Name)) has Checked event and needs to be removed"; break }
+                { $_.Unchecked } { "$($_.LocalName) named ($($_.Name)) has Unchecked event and needs to be removed"; break }
+                { $_.ValueChanged } { "$($_.LocalName) named ($($_.Name)) has ValueChanged event and needs to be removed"; break }
+                Default { "Skipping: $($_.LocalName) named ($($_.Name))" }
             }
         }
         If ($problemObjects.Count -gt 0) {

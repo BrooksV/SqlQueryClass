@@ -2,6 +2,35 @@
 
 Module helps in creating and running WPF GUI based PowerShell Applications.
 
+Original List of Potential Module Names to use:
+
+PsWpfHelper
+WpfHelperForPS
+PsWpfUtils
+WpfUtilsForPS
+PsWpfLib
+PsXaml
+PsXamlHelper
+GuiMyPS - Collections of XAML & WPF Helper Functions to simplify creation of GUI based PowerShell Applications. 
+
+Decided on using:
+GuiMyPS - Module helps in creating and running WPF GUI based PowerShell Applications.
+
+## Coding Style and Copilot instructions
+
+This is my PowerShell coding style requirements:
+Brace Styles use "K&R (Kernighan and Ritchie) style"
+Variables use CamelCase
+Operators and logical conditions use lowercase
+Statement Keywords use PascalCase
+Parameter names use PascalCase
+Functions should include Helpful Metadata and documentation sections which includes .NOTES as the last section before the Function Declaration
+NOTES section should set the Author: Brooks Vaughn and set Date to Date: to the current date as a string literal
+
+Update the following function to comply with my coding style. Before presenting the results, fix the keywords in the result that do not comply with the coding style
+
+Update the function to comply with my coding style. Before presenting the results, fix the keywords in the result that do not comply with the coding style
+
 ## `GuiMyPS` Module and Status Details
 
 Name          | Version | PS Compatibility | Project Uri (GitHub)
@@ -41,7 +70,7 @@ GuiMyPS | 0.0.1   | 5.1              | [https://github.com/BrooksV/GuiMyPS](http
 
 ### Module Tags / Keywords
 
-[PowerShell], [Database], [SQL], [SQLServer], [SQLQuery], [DataAdapter], [DataSet], [DataTable]
+[PowerShell], [WPF], [XAML], [GUI]
 
 ## Installation
 
@@ -66,52 +95,48 @@ Import-Module -Name "C:\Git\GuiMyPS\dist\GuiMyPS\GuiMyPS.psd1" -Force -verbose
 
 ### Features
 
-- Includes helper functions (not used by the Classes as they have there own methods for database access and management)
-- - Class Constructor
-- - SQL Query and NonQuery execute functions
-- - Attach and Detach Database functions
-- - List Database and Table functions
-- - Create SQL Connection function
-- Uses PowerShell Classes to:
-- - Manage database connections and configuration persistence
-- - Execute SQL queries
-- - Manage multiple SQL Query configurations and execution results as persist data
-- - Supports multiple query types, output data types
-- - Includes database schema, table, and DDL methods
-- - Support for multiple SQL servers using multiple instances of the parent class
+- Includes helper functions
 
 ## Usage
 
-The GuiMyPS Module was developed to support data binding of WPF (Windows Presentation Framework) elements to DataTables and uses SQL Adapter features for CRUD operations. Having a single class object is very convenient since it allows for maintaining connectivity, queries, and results.
+The GuiMyPS Module was developed to support the loading of WPF (Windows Presentation Framework) XAML elements, locating elements, adding Click and other Event Handlers, and miscellaneous helper functions.
 
-It can be useful in any PS script that needs to read and write to SQL databases. For quick and simple, the Module's helper functions are also a consideration. When needing to use the Classes, use the `New-SqlQueryDataSet` function which calls the Parent Class [SqlQueryDataSet]::New() constructor and return an instance of the class.
+### New-XamlWindow Helper Function
 
-### New-SqlQueryDataSet Helper Function Used to Create Parent [SqlQueryDataSet] Class Instance
+Used to prepare and load a XAML string, filepath, or XML Document returning the WPF [System.Windows.Window] form object
 
 ```powershell
-$result = New-SqlQueryDataSet [[-SQLServer] <string>] [[-Database] <string>] [[-ConnectionString] <string>] [[-Query] <string>] [[-TableName] <string>] [[-DisplayResults] <bool>] [<CommonParameters>]
+[System.Windows.Window]New-XamlWindow [-xaml] <Object> [-NoXRemoval] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
-These and other properties can be configured after the instance is created and before the desired execution method is called.
+Event handlers and code-behind logic is added to the Form Object after it's creation and before the .ShowDialog() method is called.
 
-#### New-SqlQueryDataSet Help Links
+#### New-XamlWindow Help Links
 
-- For usage examples, the [New-SqlQueryDataSets.tests.ps1](.\tests\New-SqlQueryDataSets.tests.ps1) contains a full suite of usage examples used in the Pester tests.
-- For examples, type: "Get-Help New-SqlQueryDataSet -Examples"
-- For detailed information, type: "Get-Help New-SqlQueryDataSet -Detailed"
-- For technical information, type: "Get-Help New-SqlQueryDataSet -Full"
-- See [API Guide and Class Documentation](api.guide.md) for detailed information about the module functions and classes.
+- For usage examples
+- - [Test-Usage-01.ps1](.\tests\Test-Usage-01.ps1)
+- - [Test-WpfSqlQueryClassExample.ps1](.\tests\Test-WpfSqlQueryClassExample.ps1)
+- For examples, type: "Get-Help New-XamlWindow -Examples"
+- For detailed information, type: "Get-Help New-XamlWindow -Detailed"
+- For technical information, type: "Get-Help New-XamlWindow -Full"
+- See [WPF Guide](wpf.guide.md) for detailed information about WPF.
 
-### Example 1: Create Class and Initializes with Database and Query Settings
+### Example 1: XAML as String
 
 ```powershell
-$result = New-SqlQueryDataSet -SQLServer "myServer" -Database "myDB" -Query "SELECT * FROM myTable"
+$form = New-XamlWindow -xaml $xamlString
 ```
 
-### Example 2: Create Class and Initializes with Connection String and Query Settings
+### Example 2: XAML as FilePath
 
 ```powershell
-$result = New-SqlQueryDataSet -ConnectionString "Server=myServer;Database=myDB;User Id=myUser;Password=myPass;" -Query "SELECT * FROM myTable" -DisplayResults $false
+$form = New-XamlWindow -xaml MainWindows.xaml
+```
+
+### Example 3: XAML as XML Document
+
+```powershell
+$form = New-XamlWindow -xaml [xml]$xaml
 ```
 
 ## How to Contribute
@@ -137,65 +162,44 @@ This includes details on:
 
 ### ToDo
 
-- [ ] Include database query checks to Pester Tests
+- [ ] Include Pester Tests
 - [ ] Add comment-based help sections to all CmdLets and Functions
 - [ ] Seek peer review and comments
 - [ ] Integrate feedback
 - [ ] Improve Documentation
-- [ ] Develop a Build-Readme.ps1 script to support README.md updates to code changes
+- [ ] Create a comprehensive fully functional WPF PowerShell Application
 
 ## Module Exported Functions
 
 ```powershell
 Get-Command -Module "GuiMyPS" -Syntax
 
-- Dismount-Database [[-connectionString] <Object>] [[-Database] <Object>] [-Quiet]
-- Get-Database [[-connectionString] <Object>] [[-query] <Object>] [-Quiet]
-- Get-DatabaseTable [[-connectionString] <Object>] [[-query] <Object>] [-Quiet]
-- Invoke-DatabaseNonQuery [[-connectionString] <Object>] [[-NonQuery] <Object>] [-Quiet]
-- Invoke-DatabaseQuery [[-connectionString] <Object>] [[-query] <Object>] [-Quiet]
-- Mount-Database [[-connectionString] <Object>] [[-Database] <Object>] [[-DatabaseFilePath] <Object>] [-Quiet]
-- New-SqlQueryDataSet [[-SQLServer] <string>] [[-Database] <string>] [[-ConnectionString] <string>] [[-Query] <string>] [[-TableName] <string>] [[-DisplayResults] <bool>] [<CommonParameters>]
+- Add-ClickToEveryButton [-Element] <Object> [[-ClickHandler] <RoutedEventHandler>] [<CommonParameters>]
+- Add-ClickToEveryMenuItem [-MenuObj] <Object> [-Handler] <scriptblock> [<CommonParameters>]
+- Add-EventsToEveryCheckBox [-Element] <Object> [[-ClickHandler] <RoutedEventHandler>] [[-CheckedHandler] <RoutedEventHandler>] [[-UncheckedHandler] <RoutedEventHandler>] [[-PreviewMouseUpHandler] <MouseButtonEventHandler>] [-PreventSelectionScrolling] [<CommonParameters>]
+- Build-HandlerCode [-Elements] <Object[]> [-ControlType] <string> [<CommonParameters>]
+- Find-EveryControl [-ControlType] <Object> [-Element] <Object> [-ExcludeElement] [-UseVisualTreeHelper] [-IncludeAll] [<CommonParameters>]
+- Find-RootElement [-Element] <DependencyObject> [<CommonParameters>]
+- Format-XML [-xml] <xml> [[-indent] <Object>] [-FormatAttributes] [-IncludeXmlDeclaration] [<CommonParameters>]
+- Get-ControlContent [-Element] <Object> [<CommonParameters>]
+- Get-FormVariable [<CommonParameters>]
+- Get-ObjectPropertyDetail [-InputObject] <Object> [<CommonParameters>]
+- New-XamlWindow [-xaml] <Object> [-NoXRemoval] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
-### API Guide Overview
+### Details
 
-For detailed API documentation, please refer to the [API Guide](api.guide.md).
-
-This includes details on:
-
-- [Functions](api.guide.md#functions)
-  - [Dismount-Database](api.guide.md#dismount-database)
-  - [Get-Database](api.guide.md#get-database)
-  - [Get-DatabaseTable](api.guide.md#get-database-table)
-  - [Invoke-DatabaseNonQuery](api.guide.md#invoke-database-non-query)
-  - [Invoke-DatabaseQuery](api.guide.md#invoke-database-query)
-  - [Mount-Database](api.guide.md#mount-database)
-  - [New-SqlQueryDataSet](api.guide.md#new-sql-query-data-set)
-- [Classes](api.guide.md#classes)
-  - [SqlQueryDataSet Parent Class Details](api.guide.md#sql-query-data-set-parent-class-details)
-  - [Class SqlQueryDataSet Properties](api.guide.md#class-sql-query-data-set-properties)
-  - [Class SqlQueryDataSet Methods](api.guide.md#class-sql-query-data-set-methods)
-  - [Child Class SqlQueryTable Properties](api.guide.md#child-class-sql-query-table-properties)
-  - [Child Class SqlQueryTable Methods](api.guide.md#child-class-sql-query-table-methods)
-
-### Class Overview
-
-The module includes two classes, the parent class [SqlQueryDataSet] which includes the Tables collections property of child class [SqlQueryTable] objects.
-
-An instances of [SqlQueryDataSet] manages database information and connections. It's properties and methods manages child [SqlQueryTable] classes, executes queries, and saves the results.
-
-Each instance of the [SqlQueryTable] Class holds the Query configuration and execution results. Each unique query that is added or executed is a separate item in the parent's Tables property.
-
-An instance Parent Class [SqlQueryDataSet] are created using the New-SqlQueryDataSet() helper CmdLet.
-
-See [API Guide and Class Documentation](api.guide.md) for detailed class and module information.
-
-For additional technical information, see:
-
-- "Get-Help New-SqlQueryDataSet -Full"
-- [New-SqlQueryDataSets.tests.ps1](.\tests\New-SqlQueryDataSets.tests.ps1) in the [.\tests](.\tests) folder has full usage examples used to validate usage
-- [Developer and Contributor Guide](contributor.guide.md)
+- Add-ClickToEveryButton -- Adds a Click Event Handler to all buttons nested with the starting element
+- Add-ClickToEveryMenuItem -- Adds a Click Event Handler to all MenuItems nested with the starting Menu Object / element
+- Add-EventsToEveryCheckBox -- Adds a various Event Handlers to all CheckBoxes nested with the starting element
+- Build-HandlerCode -- Generates the code for an Event Handler from a list of Elements
+- Find-EveryControl -- Searches for and creates a list of elements found of a specific Control Type with options to list all controls
+- Find-RootElement -- Transverse up the parent object tree looking for the root element which is the WPF form object
+- Format-XML -- XML pretty formatter / printer
+- Get-ControlContent -- An attempt to extract the display text for a control
+- Get-FormVariable -- Lists the $WPF_* global variables that were created by New-XamlWindow when parsing the XAML x:Name="_elementName" names
+- Get-ObjectPropertyDetail -- Dumpts the Property, Value, and Type of any PowerShell object
+- New-XamlWindow -- Main CmdLet that prepares and loads a WPF XAML string, filepath, or XML Document returning a WPF Form Object
 
 ## Folder Structure and Build Management
 
@@ -221,12 +225,13 @@ The the following ModuleTools CmdLets used in the build and maintenance process.
 ```powershell
 .\GuiMyPS
 |   .gitignore
-|   api.guide.md
 |   CODE_OF_CONDUCT.md
 |   contributor.guide.md
+|   git.cheatsheet.md.ps1
 |   GitHub_Action_Docs.md
 |   LICENSE
 |   project.json
+|   ps.readinglist.md
 |   README.md
 |   wpf.guide.md
 |
@@ -243,25 +248,28 @@ The the following ModuleTools CmdLets used in the build and maintenance process.
 |
 +---src
 |   +---private
-|   |       GuiMyPS.ps1
-|   |
 |   +---public
-|   |       Dismount-Database.ps1
-|   |       Get-Database.ps1
-|   |       Get-DatabaseTable.ps1
-|   |       Invoke-DatabaseNonQuery.ps1
-|   |       Invoke-DatabaseQuery.ps1
-|   |       Mount-Database.ps1
-|   |       New-SqlQueryDataSet.ps1
+|   |       Add-ClickToEveryButton.ps1
+|   |       Add-ClickToEveryMenuItem.ps1
+|   |       Add-EventsToEveryCheckBox.ps1
+|   |       Build-HandlerCode.ps1
+|   |       Find-EveryControl.ps1
+|   |       Find-RootElement.ps1
+|   |       Format-XML.ps1
+|   |       Get-ControlContent.ps1
+|   |       Get-FormVariable.ps1
+|   |       Get-ObjectPropertyDetail.ps1
+|   |       New-XamlWindow.ps1
 |   |
 |   \---resources
 |           about_GuiMyPS.help.txt
 |
 \---tests
         Module.Tests.ps1
-        New-SqlQueryDataSets.tests.ps1
         OutputFiles.Tests.ps1
         ScriptAnalyzer.Tests.ps1
+        Test-Usage-01.ps1
+        Test-WpfSqlQueryClassExample.ps1
         TestDatabase1.mdf
         TestDatabase1.parameters.psd1
         TestDatabase1_log.ldf
@@ -284,7 +292,7 @@ The `project.json` file contains all the important details about your module, is
 - project.json -- ModuleTools project configuration file used to build the `GuiMyPS` module
 - README.md -- Documentation (this) file for the `GuiMyPS` module
 - .vscode\settings.json -- VS Code settings used during `GuiMyPS` module development
-- *.guide.md -- various guides such as api, contributor, wpf
+- *.guide.md -- various guides such as contributor, wpf
 
 ### archive Folder
 
@@ -306,12 +314,12 @@ If you want to run any `pester` tests, keep them in `tests` folder and named *.t
 
 Run `Invoke-MTTest` to execute the tests.
 
-- .\tests\New-SqlQueryDataSets.tests.ps1 -- Full set of usage example Tests. Good Resource for usage examples
+- .\src\public\New-XamlWindow.tests.ps1 -- Full set of usage example Tests. Good Resource for usage examples
 - .\tests\Module.Tests.ps1 -- General Module Control to verify the module imports correctly
 - .\tests\OutputFiles.Tests.ps1 -- Module and Manifest testing to verify output files are readable
 - .\tests\ScriptAnalyzer.Tests.ps1 -- Code Quality Checks to verify PowerShell syntax and best practices
-- .\tests\TestDatabase1.parameters.psd1 -- PowerShell Data File of configuration settings used in New-SqlQueryDataSets.tests.ps1
-- .\tests\TestDatabase1.mdf -- Sample SQL Express Database File with samples data used in New-SqlQueryDataSets.tests.ps1
+- .\tests\TestDatabase1.parameters.psd1 -- PowerShell Data File of configuration settings used in Test-WpfSqlQueryClassExample.ps1
+- .\tests\TestDatabase1.mdf -- Sample SQL Express Database File with samples data used in Test-WpfSqlQueryClassExample.ps1
 - .\tests\TestDatabase1_log.ldf -- Created when using TestDatabase1.mdf
 
 ## Join the Conversation

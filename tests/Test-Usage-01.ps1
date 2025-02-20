@@ -72,71 +72,115 @@ try {
 }
 #>
 
-$handler_button_Click = {
+$handler_Button_Click = {
     Param ([object]$theSender, [System.EventArgs]$e)
-    Write-Host ("`$handler_button_Click() Item: {0}" -f $theSender.Name)
-}
-
-$handler_MenuItem_Click = {
-    Param ([object]$theSender, [System.EventArgs]$e)
-    Write-Host ("`$handler_MenuItem_Click() Item clicked: {0}" -f $theSender.Name)
+    Write-Host ("`$handler_Button_Click() Item clicked: {0}" -f $theSender.Name)
     Switch -Regex ($theSender.Name) {
-
-            '^mnuMExport$' {
+            '^_saveButton$' {
                 Break
             }
-            '^mnuMExportCopyToClipboard$' {
-                Break
-            }
-            '^mnuMExportAsCSV$' {
-                Break
-            }
-            '^mnuMExportAsExcel$' {
-                Break
-            }
-            '^mnuMImportFromExcel$' {
-                Break
-            }
-            '^mnuMAdd$' {
-                Break
-            }
-            '^mnuMCancel$' {
-                Break
-            }
-            '^mnuMSave$' {
-                Break
-            }
-            '^mnuMDelete$' {
-                Break
-            }
-            '^mnuMFirst$' {
-                Break
-            }
-            '^mnuMPrevious$' {
-                Break
-            }
-            '^mnuMNext$' {
-                Break
-            }
-            '^mnuMLast$' {
-                Break
-            }
-            '^mnuDAdd$' {
-                Break
-            }
-            '^mnuDCancel$' {
-                Break
-            }
-            '^mnuDSave$' {
-                Break
-            }
-            '^mnuDDelete$' {
+            '^quitButton$' {
+                $rootElement = Find-RootElement -Element $theSender
+                If ($rootElement) {
+                    $rootElement.Close()
+                }
                 Break
             }
         default {
             Write-Host ("{0}: {1}({2})" -f $theSender.Name, $e.OriginalSource.Name, $e.OriginalSource.ToString())
         }
     }
+}
+
+$handler_MenuItem_Click = {
+    Param ([object]$theSender, [System.EventArgs]$e)
+    Write-Host ("`$handler_MenuItem_Click() Item clicked: {0}" -f $theSender.Name)
+    Switch -Regex ($theSender.Name) {
+        '^_toggleEditMode$' {
+            Break
+        }
+        '^mnuMExport$' {
+            Break
+        }
+        '^mnuMExportCopyToClipboard$' {
+            Break
+        }
+        '^mnuMExportAsCSV$' {
+            Break
+        }
+        '^mnuMExportAsExcel$' {
+            Break
+        }
+        '^mnuMImportFromExcel$' {
+            Break
+        }
+        '^mnuMAdd$' {
+            Break
+        }
+        '^mnuMCancel$' {
+            Break
+        }
+        '^mnuMSave$' {
+            Break
+        }
+        '^mnuMDelete$' {
+            Break
+        }
+        '^mnuMFirst$' {
+            Break
+        }
+        '^mnuMPrevious$' {
+            Break
+        }
+        '^mnuMNext$' {
+            Break
+        }
+        '^mnuMLast$' {
+            Break
+        }
+        '^mnuDAdd$' {
+            Break
+        }
+        '^mnuDCancel$' {
+            Break
+        }
+        '^mnuDSave$' {
+            Break
+        }
+        '^mnuDDelete$' {
+            Break
+        }
+        default {
+            Write-Host ("{0}: {1}({2})" -f $theSender.Name, $e.OriginalSource.Name, $e.OriginalSource.ToString())
+        }
+    }
+}
+
+<# Test for XAML String #>
+try {
+    $form1 = (New-XamlWindow -xaml $inputXML)
+    # Add-ClickToEveryButton -Element $form1 -ClickHandler $handler_button_Click
+    $elements = @()
+    $elements += Find-EveryControl -Element $form1 -ControlType 'System.Windows.Controls.Button'
+    # Build-HandlerCode -Elements $elements -ControlType System.Windows.Controls.Button
+    $elements.ForEach({$_.Element.Add_Click($handler_Button_Click)})
+    $form1.ShowDialog()
+} catch {
+    Write-Warning ($_ | Format-List | Out-String)
+}
+#>
+
+$Error
+Break
+
+# Test for [System.Xml.XmlDocument]
+try {
+    $xaml = [xml]$inputXML
+    $form2 = New-XamlWindow -xaml $xaml
+    Add-ClickToEveryButton -Element $form2 -ClickHandler $handler_button_Click
+    $form2.ShowDialog()
+} catch {
+    Write-Warning ($_ | Format-List | Out-String)
 }
 
 # Test for File Path to XAML file
@@ -154,27 +198,5 @@ try {
 } catch {
     Write-Warning ($_ | Format-List | Out-String)
 }
-break
-
-<# Test for XAML String #>
-try {
-    $form1 = (New-XamlWindow -xaml $inputXML)
-    Add-ClickToEveryButton -Element $form1 -ClickHandler $handler_button_Click
-    $form1.ShowDialog()
-} catch {
-    Write-Warning ($_ | Format-List | Out-String)
-}
-#>
-
-# Test for [System.Xml.XmlDocument]
-try {
-    $xaml = [xml]$inputXML
-    $form2 = New-XamlWindow -xaml $xaml
-    Add-ClickToEveryButton -Element $form2 -ClickHandler $handler_button_Click
-    $form2.ShowDialog()
-} catch {
-    Write-Warning ($_ | Format-List | Out-String)
-}
-
 
 $Error

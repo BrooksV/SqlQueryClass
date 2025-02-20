@@ -1,13 +1,48 @@
+<#
+.SYNOPSIS
+    Generates Event Handler Code Snippet for the desired controlType.
 
+.DESCRIPTION
+    The Build-HandlerCode function generates an event handler code snippet for the specified control type.
+    $Elements is an array of [PSCustomObject] created by the Find-EveryControl function.
+    $ControlType is the type of elements in $Elements and is used mostly for naming the handler.
+
+.PARAMETER Elements
+    An array of [PSCustomObject] representing the elements created by Find-EveryControl() function.
+    [PSCustomObject]@{
+        Name = $Element.Name
+        Type = $Element.GetType().ToString()
+        Text = (Get-ControlContent -Element $Element)
+        Element = $Element
+    }
+
+.PARAMETER ControlType
+    Is the type of elements in $Elements and is used mostly for naming of the handler
+
+.EXAMPLE
+    $elements = @()
+    $elements += Find-EveryControl -Element $form -ControlType 'System.Windows.Controls.MenuItem'
+    $elements += Find-EveryControl -Element $form -ControlType 'System.Windows.Controls.Primitives.ToggleButton'
+    Build-HandlerCode -Elements $elements -ControlType System.Windows.Controls.MenuItem
+
+.NOTES
+    Author: Brooks Vaughn
+    Date: 2025-02-19 18:12:04
+#>
 Function Build-HandlerCode {
+    [CmdletBinding()]
     Param (
-        [System.Object]$Element,
+        [Parameter(Mandatory = $true)]
+        [System.Object[]]$Elements,
+        [Parameter(Mandatory = $true)]
         [String]$ControlType
     )
-    If ([String]::IsNullOrEmpty($Element)) {
-        Write-Warning "Parameter -Element is empty or missing"
+
+    If ($null -eq $Elements) {
+        Write-Warning "Parameter -Elements is empty or missing"
         Return
-    }    
+    }
+
     If ([String]::IsNullOrEmpty($ControlType)) {
         Write-Host "Parameter -ControlType is empty or missing" -ForegroundColor Red
         Return
@@ -15,7 +50,6 @@ Function Build-HandlerCode {
 
     $eol = [System.Environment]::NewLine
     $sb = [System.Text.StringBuilder]::new()
-
     $handlerName = "`$handler_$($ControlType.Split('.')[-1])_Click"
 
     # Starting Code
@@ -27,17 +61,8 @@ $handlerName = {
 "@ + $eol)
 
     # Body Code consists of Regex patterns of the Item Element Name it finds of matching ControlTypes
-    # $elements = Find-EveryMatchingElement -Element:$Element -ControlType:$ControlType -Verbose
-    # Find-EveryControl -Element $form -ControlType 'System.Windows.Controls.MenuItem'
-    # Find-EveryControl -Element $form -ControlType 'System.Windows.Controls.RadioButton'
-    # Find-EveryControl -Element $form -ControlType 'System.Windows.Controls.Combobox'
-    # Find-EveryControl -Element $form -ControlType 'System.Windows.Controls.Button'
-    # Find-EveryControl -Element $form -ControlType 'System.Windows.Controls.MenuItem'
-    # Find-EveryControl -Element $form -ControlType 'System.Windows.Controls.Primitives.ToggleButton'
-
-    $elements = Find-EveryControl -Element $form -ControlType $ControlType
-    ForEach ($element in $elements) {
-        If (-not [String]::IsNullOrEmpty($element)) {
+    ForEach ($element in $Elements) {
+        If (-not [String]::IsNullOrEmpty($element.Name)) {
             [void]$sb.AppendLine(@"
             '^$($element.Name)$' {
                 Break
@@ -56,9 +81,13 @@ $handlerName = {
 "@)
 
     $sb.ToString()
-
 }
 
-
-# Build-HandlerCode -Element $form -ControlType System.Windows.Controls.MenuItem
-# Build-HandlerCode -Element $form -ControlType 'System.Windows.Controls.Primitives.ToggleButton'
+<# Usage Example # >
+$elements = @()
+$elements += Find-EveryControl -Element $form -ControlType 'System.Windows.Controls.MenuItem'
+$elements += Find-EveryControl -Element $form -ControlType 'System.Windows.Controls.Primitives.ToggleButton'
+Build-HandlerCode -Elements $elements -ControlType 'System.Windows.Controls.MenuItem'
+# How to use the same $elements list to Add_Click() Events
+$elements.ForEach({$_.Element.Add_Click($handler_MenuItem_Click)})
+#>

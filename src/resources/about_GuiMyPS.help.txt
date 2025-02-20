@@ -1,43 +1,41 @@
 ﻿TOPIC
-    about_SqlQueryClass
+    about_GuiMyPS
 
 SHORT DESCRIPTION
-    Provides functionality for executing SQL queries and managing SQL datasets.
+    PowerShell Module helps in creating and running WPF GUI based PowerShell Applications
 
 LONG DESCRIPTION
-    The SqlQueryClass module provides a set of functions and cmdlets for working with SQL Server databases. 
-    It includes functionality for connecting to a SQL Server, executing SQL queries, and managing the results in datasets.
-    This module is designed to simplify database operations and improve productivity by offering a set of easy-to-use cmdlets.
+    Collections of XAML & WPF Helper Functions to simplify creation of GUI WPF based PowerShell Applications 
 
-    The main cmdlet provided by this module is New-SqlQueryDataSet, which allows you to create and configure a SqlQueryDataSet object
-    based on the provided parameters.
+    The main cmdlet provided by this module is New-XamlWindow, which allows you to create and configure a 
+    WPF Form object from XAML String, File, or XmlDocument.
+
+    A PowerShell WPF Application consists of the following:
+
+    1. XAML file that defines the GUI layout and elements. This can be created manually using any text editor or via WPF editors such as Visual Studio's Blend application
+    2. PowerShell Code-Behind script that initializes the application and includes the logic for handling the interactions with the GUI interface 
 
 EXAMPLES
-    Example 1: Connecting to a SQL Server and executing a query
-    PS> $result = New-SqlQueryDataSet -SQLServer "myServer" -Database "myDB" -Query "SELECT * FROM myTable"
-    This example demonstrates how to connect to a SQL Server and execute a query to retrieve data from a table.
-
-    Example 2: Using a connection string to execute a query
-    PS> $result = New-SqlQueryDataSet -ConnectionString "Server=myServer;Database=myDB;User Id=myUser;Password=myPass;" -Query "SELECT * FROM myTable" -DisplayResults $false
-    This example demonstrates how to use a connection string to connect to a SQL Server and execute a query without displaying the results.
+    See examples such as: .\tests\Test-Usage-01.ps1
 
 TROUBLESHOOTING
-    If you encounter issues while using the SqlQueryClass module, ensure that the SQL Server and Database parameters are correctly specified.
-    Verify that the connection string is valid and that the SQL Server is accessible. Check for any errors in the SQL query and make sure
-    that the table name, if specified, exists in the database.
+    If you encounter issues while using the GuiMyPS module, try following the test examples and verify the required assemblies are loaded 
+    and the New-XamlWindow CmdLet is returning a valid Form Object that can be shown using .ShowDialog() method.
+    
+    Also, try Killing the PowerShell session and running again.
 
 SEE ALSO
-    New-SqlQueryDataSet
+    New-XamlWindow
     Get-Help
 
 KEYWORDS
-    SQL, Database, Query, SqlQueryDataSet
+    PowerShell, WPF, XAML, GUI
 
 AUTHOR
     Brooks Vaughn
 
 VERSION
-    0.1.0
+    0.0.1
 
 LAST UPDATED
-    2025-02-01
+    2025-02-20
