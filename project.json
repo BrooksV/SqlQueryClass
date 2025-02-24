@@ -1,19 +1,24 @@
 {
-  "ProjectName": "GuiMyPS",
-  "Description": "Module helps in creating and running WPF GUI based PowerShell Applications.",
-  "Version": "0.0.1",
+  "ProjectName": "SqlQueryClass",
+  "Description": "The SqlQueryClass module provides a set of functions and cmdlets for working with SQL databases. It includes functionality for connecting, executing SQL queries, and managing output as DataTable, DataAdapter, DataSet, SqlReader, or NonQuery result objects.",
+  "Version": "0.1.3",
+  "ResourceCopyMode": "Content",
   "Manifest": {
     "Author": "Brooks Vaughn",
     "PowerShellHostVersion": "5.1",
-    "GUID": "b9f7d4c6-e924-4a7b-a117-e169dc71f010",
+    "GUID": "8375edbe-fb0f-4cb6-acb0-9964b45725c0",
     "Tags": [
       "PowerShell",
-      "WPF",
-      "XAML",
-      "GUI"
+      "Database",
+      "SQL",
+      "SQLServer",
+      "SQLQuery",
+      "DataAdapter",
+      "DataSet",
+      "DataTable"
     ],
-    "ProjectUri": "https://github.com/BrooksV/GuiMyPS",
-    "LicenseUri": "https://github.com/BrooksV/GuiMyPS/blob/main/LICENSE"
+    "ProjectUri": "https://github.com/BrooksV/SqlQueryClass",
+    "LicenseUri": "https://github.com/BrooksV/SqlQueryClass/blob/main/LICENSE"
   },
   "Pester": {
     "TestResult": {
