@@ -718,76 +718,70 @@ class SqlQueryDataSet {
     # Method
     [Object] SaveChanges() {
         $table = $This.Tables[$This.TableIndex]
-        If ($This.ConnectionString) {
-            $SaveChangesConnectionString = $This.ConnectionString
-        } Else {
-            $SaveChangesConnectionString = $This.BuildConnectionString()
-        }
-
-        $SaveChangesConnection = [System.Data.SqlClient.SqlConnection]::new()
-        $SaveChangesConnection.ConnectionString = $SaveChangesConnectionString
-
+        $This.KeepAlive = $false
+        $This.OpenConnection()
         Try {
-            $This.KeepAlive = $false
-            $This.OpenConnection()
+            If ([String]::IsNullOrEmpty($table.SqlDataAdapter.SelectCommand)) {
+                $table.SqlDataAdapter.SelectCommand = $table.SQLCommand
+            }
+            $table.SqlDataAdapter.SelectCommand.Connection = $This.SQLConnection
+            If ([String]::IsNullOrEmpty($table.SqlDataAdapter.DeleteCommand)) {
+                $table.SqlDataAdapter.DeleteCommand = [System.Data.SqlClient.SqlCommand]::new()
+            }
+            $table.SqlDataAdapter.DeleteCommand.Connection = $This.SQLConnection
 
-            #--------------------------------------------------
-            # Create a DataView to examine the changes
-            #--------------------------------------------------
-            # $dataView = [System.Data.DataView]::new($This.Tables[0].Result.Tables[0])
-            # # Set the RowStateFilter to display only added and modified rows.
-            # $dataView.RowStateFilter = ([System.Data.DataViewRowState]::Deleted -bor [System.Data.DataViewRowState]::Added -bor [System.Data.DataViewRowState]::ModifiedCurrent)
-            # ForEach ($row in $dataView) {Write-Host ($row | FT -AutoSize | Out-String).Trim()}
-            # Write-Host ($dataView | FT -AutoSize | Out-String).Trim()
+            If ([String]::IsNullOrEmpty($table.SqlDataAdapter.UpdateCommand)) {
+                $table.SqlDataAdapter.UpdateCommand = [System.Data.SqlClient.SqlCommand]::new()
+            }
+            $table.SqlDataAdapter.UpdateCommand.Connection = $This.SQLConnection
 
+            If ([String]::IsNullOrEmpty($table.SqlDataAdapter.InsertCommand)) {
+                $table.SqlDataAdapter.InsertCommand = [System.Data.SqlClient.SqlCommand]::new()
+            }
+            $table.SqlDataAdapter.InsertCommand.Connection = $This.SQLConnection
+
+            # Initialize SqlCommandBuilder to generate commands
             $commandBuilder = [System.Data.SqlClient.SqlCommandBuilder]::new($table.SqlDataAdapter)
+            # Configure SqlDataAdapter commands
             $table.SqlDataAdapter.UpdateCommand = $commandBuilder.GetUpdateCommand()
             $table.SqlDataAdapter.InsertCommand = $commandBuilder.GetInsertCommand()
             $table.SqlDataAdapter.DeleteCommand = $commandBuilder.GetDeleteCommand()
 
-            If ($table.ResultType -in @([ResultType]::DataAdapter,[ResultType]::DataSet)) {
-                $table.SqlDataAdapter.Update($table.Result.Tables[0])
-            } ElseIf ($table.ResultType -eq [ResultType]::DataTable) {
-                $table.SqlDataAdapter.Update($table.Result)
-            }
+            # $tableM.SqlDataAdapter.Update($tableM.Result[0].Tables[0])
 
-            If (-not [String]::IsNullOrEmpty($table.SqlDataAdapter.DeleteCommand)) {
-                $table.SqlDataAdapter.DeleteCommand.Connection = $This.SQLConnection
-            }
-            If (-not [String]::IsNullOrEmpty($table.SqlDataAdapter.UpdateCommand)) {
-                $table.SqlDataAdapter.UpdateCommand.Connection = $This.SQLConnection
-            }
-            If (-not [String]::IsNullOrEmpty($table.SqlDataAdapter.InsertCommand)) {
-                $table.SqlDataAdapter.InsertCommand.Connection = $This.SQLConnection
-            }
-            
-            Try { # First process deletes.
-                $table.SqlDataAdapter.Update($table.Result.Tables[0].Select($null, $null, [System.Data.DataViewRowState]::Deleted))
-            } Catch {
-                Write-Warning "Handled an exception in the delete process: $($_.Exception.Message)"
-            }
-            
-            Try { # Next process updates.
-                $table.SqlDataAdapter.Update($table.Result.Tables[0].Select($null, $null, [System.Data.DataViewRowState]::ModifiedCurrent))
-            } Catch {
-                Write-Warning "Handled an exception in the delete process: $($_.Exception.Message)"
-            }
-            
-            Try { # Finally, process inserts.
-                $table.SqlDataAdapter.Update($table.Result.Tables[0].Select($null, $null, [System.Data.DataViewRowState]::Added))
-                $table.Result.Tables[0].AcceptChanges()
-            } Catch {
-                Write-Warning "Handled an exception in the delete process: $($_.Exception.Message)"
+            # Update the data source
+            $changes = $table.Result[0].Tables[0].GetChanges()
+            if ($null -ne $changes) {
+                Try { # First process deletes.
+                    $table.SqlDataAdapter.Update($table.Result[0].Tables[0].Select($null, $null, [System.Data.DataViewRowState]::Deleted))
+                } Catch {
+                    Write-Warning "Handled an exception in the Delete process: $($_.Exception.Message)"
+                }
+                Try { # Next process updates.
+                    $table.SqlDataAdapter.Update($table.Result[0].Tables[0].Select($null, $null, [System.Data.DataViewRowState]::ModifiedCurrent))
+                } Catch {
+                    Write-Warning "Handled an exception in the Update process: $($_.Exception.Message)"
+                }
+                Try { # Finally, process inserts.
+                    $table.SqlDataAdapter.Update($table.Result[0].Tables[0].Select($null, $null, [System.Data.DataViewRowState]::Added))
+                } Catch {
+                    Write-Warning "Handled an exception in the Add / Insert process: $($_.Exception.Message)"
+                }
+                Write-Host "Changes to $($table.TableName) committed and accepted."
+                $table.Result[0].Tables[0].AcceptChanges()
+                # $tableM.Result[0].AcceptChanges()
+                $table.IsDirty = $false
+            } else {
+                Write-Host "No changes to $($table.TableName) were update."
             }
         } Catch {
-            return $(Write-host ($_ | Out-String) -ForegroundColor Red) 
+            Write-Host ("$($table.TableName).SaveChanges() Error: ({0})" -f ($error[0] | Out-String).TrimEnd()) -ForegroundColor Red
         } Finally {
-            $table.Result.AcceptChanges()
             $This.CloseConnection()
+            $This.Execute($table)
         }
-
         If ($This.DisplayResults) {
-            Return $table.Result.Tables[0]
+            Return $table.Result[0].Tables[0]
         } Else {
             Return $null
         }

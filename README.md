@@ -201,6 +201,12 @@ For additional technical information, see:
 
 The folder structure of the SqlQueryClass module is based on best practices for PowerShell module development and was initially created using [Manjunath Beli's](https://github.com/belibug) [ModuleTools](https://github.com/belibug) module. Check out his [Blog article](https://blog.belibug.com/post/ps-modulebuild) that explains the core concepts of ModuleTools.
 
+Install [Manjunath Beli's ModuleTools](https://github.com/belibug/ModuleTools) module as the module build process uses ModuleTools
+
+```powershell
+Find-Module -Name ModuleTools | Install-Module -Scope CurrentUser -Verbose
+```
+
 The the following ModuleTools CmdLets used in the build and maintenance process. They need to be executed from project root:
 
 - Get-MTProjectInfo -- returns hashatble of project configuration which can be used in pester tests or for general troubleshooting
