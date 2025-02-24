@@ -5,17 +5,17 @@
 - [Setup](#setup)
 - [Source Files used in the Module](#source-files-used-in-the-module)
 - [Module Build Process](#module-build-process)
-- [Publishing `SqlQueryClass` Module to GitHub](#publishing-sqlqueryclass-module-to-github)
+- [Publishing `GuiMyPS` Module to GitHub](#publishing-GuiMyPS-module-to-github)
 - [Code Review and Feedback](#code-review-and-feedback)
 - [Merge the Pull Request](#merge-the-pull-request)
 - [Cleanup](#cleanup)
-- [Publishing `SqlQueryClass` Module to PowerShell Gallery](#publishing-sqlqueryclass-module-to-powershell-gallery)
+- [Publishing `GuiMyPS` Module to PowerShell Gallery](#publishing-GuiMyPS-module-to-powershell-gallery)
 
 ## Setup
 
 - Uses SQL Express but should work with other SQL Databases with proper connection strings and credentials
 - Requires VS Code
-- For Contributors, Fork the [SqlQueryClass](https://github.com/BrooksV/SqlQueryClass) repository
+- For Contributors, Fork the [GuiMyPS](https://github.com/BrooksV/GuiMyPS) repository
 - Clone the repository or fork to local pc. I like using c:\git as my local repository folder. Subfolder $ProjectName will be created with the GitHub repository contents
 - Install [Manjunath Beli's ModuleTools](https://github.com/belibug/ModuleTools) module as the module build process uses ModuleTools
 
@@ -29,8 +29,6 @@
 
 - Public functions that are exported, are separate files in the .\src\public folder.
 - Private functions that are local to the Module, are separate files in the .\src\private folder.
-- - Class Definitions and Enums are not accessible outside of the Module and cannot be accessed directly like Public Functions are. This is a PowerShell limitation.
-- - - Classes [SqlQueryDataSet] and [SqlQueryDataSetParms] and enum ResultType used in the Module are defined in file .\src\private\SqlQueryClass.ps1 file. The classes have properties and methods used to maintain a Database connections and result sets making it useful WPF Data binding.
 - Resources are files and folders in the .\src\resources folder that needs to be included with the Manifest and Module
 
 ## Module Build Process
@@ -52,10 +50,10 @@
    Invoke-MTBuild -Verbose
    ```
 
-- - Outputs to the .\dist\SqlQueryClass folder
-- - Combines the file contents of the files in Public and Private folder into .\dist\SqlQueryClass\SqlQueryClass.psd1 and exports the Public Functions
-- - Generates the .\dist\SqlQueryClass\SqlQueryClass.psd1 Manifest file from the settings in .\project.json
-- - Resources (.\src\resources) folder content is copied to .\dist\SqlQueryClass folder
+- - Outputs to the .\dist\GuiMyPS folder
+- - Combines the file contents of the files in Public and Private folder into .\dist\GuiMyPS\GuiMyPS.psd1 and exports the Public Functions
+- - Generates the .\dist\GuiMyPS\GuiMyPS.psd1 Manifest file from the settings in .\project.json
+- - Resources (.\src\resources) folder content is copied to .\dist\GuiMyPS folder
 - Run the Pester Teats using Invoke-MTTest (Find-Module -Name ModuleTools)
 
 1. Make corrections, repeat the build process.
@@ -64,7 +62,7 @@
    - Upstream your branch.
    - Create a Pull request.
 
-## Publishing `SqlQueryClass` Module to GitHub
+## Publishing `GuiMyPS` Module to GitHub
 
 1. Stage and Commit Your Changes
 
@@ -85,7 +83,7 @@
     ```
 
 1. Create a Pull Request on remote repository
-   - Go to [SqlQueryClass GitHub repository](https://github.com/BrooksV/SqlQueryClass)
+   - Go to [GuiMyPS GitHub repository](https://github.com/BrooksV/GuiMyPS)
    - Click on "Compare & pull request" for your branch
    - Provide a meaningful title and description for the PR
    - Select the base branch (main) to merge into
@@ -118,7 +116,7 @@ git branch -d features/database-table-access
 
 These steps will ensure your changes are integrated into the main branch and your repository remains organized.
 
-## Publishing `SqlQueryClass` Module to PowerShell Gallery
+## Publishing `GuiMyPS` Module to PowerShell Gallery
 
 ```powershell
 $data = Get-MTProjectInfo
