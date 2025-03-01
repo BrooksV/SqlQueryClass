@@ -771,6 +771,7 @@ class SqlQueryDataSet {
                 $table.Result[0].Tables[0].AcceptChanges()
                 # $tableM.Result[0].AcceptChanges()
                 $table.IsDirty = $false
+                $table.SqlDataAdapter.Fill($table.Result[0].Tables[0])
             } else {
                 Write-Host "No changes to $($table.TableName) were update."
             }
@@ -778,7 +779,7 @@ class SqlQueryDataSet {
             Write-Host ("$($table.TableName).SaveChanges() Error: ({0})" -f ($error[0] | Out-String).TrimEnd()) -ForegroundColor Red
         } Finally {
             $This.CloseConnection()
-            $This.Execute($table)
+            # $This.Execute($table)
         }
         If ($This.DisplayResults) {
             Return $table.Result[0].Tables[0]
