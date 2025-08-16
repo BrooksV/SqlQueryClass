@@ -1,8 +1,8 @@
 {
   "ProjectName": "SqlQueryClass",
   "Description": "The SqlQueryClass module provides a set of functions and cmdlets for working with SQL databases. It includes functionality for connecting, executing SQL queries, and managing output as DataTable, DataAdapter, DataSet, SqlReader, or NonQuery result objects.",
-  "Version": "0.1.3",
-  "ResourceCopyMode": "Content",
+  "Version": "0.1.4",
+  "copyResourcesToModuleRoot": true,
   "Manifest": {
     "Author": "Brooks Vaughn",
     "PowerShellHostVersion": "5.1",

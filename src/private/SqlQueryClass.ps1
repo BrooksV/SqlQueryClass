@@ -405,6 +405,9 @@ class SqlQueryDataSet {
                 Write-Warning "GetTableFromQuery() TableName from Query is different then TableName in Tables: `$schemaTable.tableName=$($schemaTable.tableName), TableName=$($table.TableName), TableIndex=$($table.TableIndex)"
             }
         }
+        If (-not [String]::IsNullOrWhiteSpace($Query) -and $Query -ne $table.Query) {
+            $table.Query = $Query
+        }
         Write-Host "GetTableFromQuery(): `$schemaTable.tableName=$($schemaTable.tableName), TableName=$($table.TableName), TableIndex=$($table.TableIndex)" -ForegroundColor Green
         Return ($table.TableIndex)
     }
@@ -455,13 +458,22 @@ class SqlQueryDataSet {
 
     # Method
     LoadQueryFromFile([String]$Path) {
+        LoadQueryFromFile([String]::Empty, $Path)
+    }
+
+    LoadQueryFromFile([String]$TableName, [String]$Path) {
         If (Test-Path $Path) {
             If ([IO.Path]::GetExtension($Path) -ne ".sql") {
                 throw [System.IO.FileFormatException] "'$Path' does not have an '.sql' extension'"
             } Else {
                 Try {
-                    [String]$QueryStatement = Get-Content -Path $Path -Raw -ErrorAction Stop
-                    $This.TableIndex = $This.AddQuery($QueryStatement)
+                    # [String]$QueryStatement = Get-Content -Path $Path -ErrorAction Stop
+                    [String]$QueryStatement = [System.IO.File]::ReadAllLines($Path) 
+                    If ([string]::IsNullOrEmpty($TableName)) {
+                        $This.TableIndex = $This.AddQuery($QueryStatement)
+                    } Else {
+                        $This.TableIndex = $This.AddQuery($TableName, $QueryStatement)
+                    }
                     $This.Tables[$This.TableIndex].QueryFile = $Path
                 } Catch {
                     Write-host ($_ | Out-String) -ForegroundColor Red 
@@ -646,13 +658,22 @@ class SqlQueryDataSet {
     }
 
     # Method
+    [Object] ExecuteNonQuery() {
+        $table = $This.Tables[$This.TableIndex]
+        Return ($This.ExecuteNonQuery($table))
+    }
+
     [Object] ExecuteNonQuery([String]$SqlQuery) {
         If ($SqlQuery) {
-            $This.TableIndex = $This.AddQuery($SqlQuery)
+            $This.TableIndex = $This.AddQuery('NonQuery',$SqlQuery)
         }
         $table = $This.Tables[$This.TableIndex]
-        $table.ResultType = [ResultType]::NonQuery
-        Return ($This.Execute($table))
+        Return ($This.ExecuteNonQuery($table))
+    }
+
+    [Object] ExecuteNonQuery([Object]$Table) {
+        $Table.ResultType = [ResultType]::NonQuery
+        Return ($This.Execute($Table))
     }
 
     # Method
@@ -792,7 +813,7 @@ class SqlQueryDataSet {
     [Object] GetDBTableSchema([String]$TableName) {
         $SqlQuery = "SELECT * FROM [$($This.Database)].INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '$TableName';"
         # $SqlQuery = "SELECT COLUMN_NAME, DATA_TYPE, CHARACTER_MAXIMUM_LENGTH, IS_NULLABLE FROM [$($This.Database)].INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '$TableName';"
-        Return ($This.ExecuteQuery($SqlQuery))
+        Return ($This.ExecuteQuery('COLUMNS', $SqlQuery))
     }
 
     # Method to Retrieve Table Indexes from SQL v17 or higher using STRING_AGG
@@ -823,7 +844,7 @@ class SqlQueryDataSet {
                 FROM [$($This.Database)].sys.indexes AS i
                 WHERE i.object_id = OBJECT_ID('dbo.$TableName')
                 GROUP BY i.name, i.is_unique, i.object_id, i.index_id"
-        Return ($This.ExecuteQuery($SqlQuery))
+        Return ($This.ExecuteQuery('Indexes', $SqlQuery))
     }
 
     # Method to Generate the CREATE TABLE statement
